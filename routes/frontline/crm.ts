@@ -1,26 +1,5 @@
 import { Request, Response } from "express";
-import { getCustomerById, getCustomersList } from "./providers/customers";
-
-const crmCallbackHandler = async (req: Request, res: Response) => {
-  const location = req.body.Location;
-  // Location helps to determine which information was requested.
-  // CRM callback is a general purpose tool and might be used to fetch different kind of information
-
-  switch (location) {
-    case 'GetCustomerDetailsByCustomerId': {
-      await handleGetCustomerDetailsByCustomerIdCallback(req, res);
-      return;
-    }
-    case 'GetCustomersList': {
-      await handleGetCustomersListCallback(req, res);
-      return;
-    }
-    default: {
-      console.log('Unknown location: ', location);
-      res.sendStatus(422);
-    }
-  }
-};
+import { getCustomerById, getCustomersList } from "./providers/customers.js";
 
 const handleGetCustomerDetailsByCustomerIdCallback = async (req: Request, res: Response) => {
   const body = req.body;
@@ -65,6 +44,27 @@ const handleGetCustomersListCallback = async (req: Request, res: Response) => {
       customers: customersList
     }
   });
+};
+
+const crmCallbackHandler = async (req: Request, res: Response) => {
+  const location = req.body.Location;
+  // Location helps to determine which information was requested.
+  // CRM callback is a general purpose tool and might be used to fetch different kind of information
+
+  switch (location) {
+    case 'GetCustomerDetailsByCustomerId': {
+      await handleGetCustomerDetailsByCustomerIdCallback(req, res);
+      return;
+    }
+    case 'GetCustomersList': {
+      await handleGetCustomersListCallback(req, res);
+      return;
+    }
+    default: {
+      console.log('Unknown location: ', location);
+      res.sendStatus(422);
+    }
+  }
 };
 
 export default crmCallbackHandler;
