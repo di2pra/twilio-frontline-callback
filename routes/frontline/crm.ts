@@ -5,7 +5,6 @@ const handleGetCustomerDetailsByCustomerIdCallback = async (req: Request, res: R
   const body = req.body;
   console.log('Getting Customer details: ', body.CustomerId);
 
-  const workerIdentity = body.Worker;
   const customerId = body.CustomerId;
 
   // Fetch Customer Details based on his ID

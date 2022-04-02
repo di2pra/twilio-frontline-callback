@@ -15,6 +15,7 @@
     "@hubspot/api-client": "^6.0.1-beta4",
     "express": "^4.17.3",
     "express-sslify": "^1.2.0",
+    "node-fetch": "^3.2.3",
     "path": "^0.12.7",
     "twilio": "^3.76.0",
     "uuid": "^8.3.2"

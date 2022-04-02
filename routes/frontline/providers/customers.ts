@@ -147,7 +147,7 @@ export const getCustomersList = async (worker: string, pageSize: number, anchor:
   }
 };
 
-export const getCustomerByNumber = async (customerNumber: string) => {
+export const getCustomerByNumber = async (customerNumber: string) : Promise<IFrontlineCustomer> => {
 
   const filter = { propertyName: 'hs_calculated_phone_number', operator: 'EQ' as FilterOperatorEnum, value: customerNumber }
   const sort = JSON.stringify({ propertyName: 'lastmodifieddate', direction: 'ASCENDING' })
@@ -185,10 +185,10 @@ export const getCustomerByNumber = async (customerNumber: string) => {
         { type: 'whatsapp', value: customerData.properties.hs_calculated_phone_number }
       ],
       worker: 'prajendirane@twilio.com'
-    }
+    } as IFrontlineCustomer
 
   } else {
-    return {}
+    return {} as IFrontlineCustomer
   }
 };
 
