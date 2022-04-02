@@ -32,7 +32,7 @@ const logWithRequestData = (method: string, path: string, id: string) => (...mes
 app.use(requestFilter);
 
 if (process.env.NODE_ENV != 'development') {
-  app.use(twilio.webhook());
+  app.use(twilio.webhook({protocol: 'https'}));
 }
 
 app.get('/', (req : Request, res : Response) => {
