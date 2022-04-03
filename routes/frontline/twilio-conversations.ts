@@ -4,8 +4,8 @@ import twilioClient from "./providers/twilioClient.js";
 import fetch from 'node-fetch';
 
 const conversationsCallbackHandler = async (req : Request, res : Response) => {
-    res.locals.log("Conversations Callback");
-    res.locals.log(JSON.stringify(req.body));
+    //res.locals.log("Conversations Callback");
+    //res.locals.log(JSON.stringify(req.body));
 
     const eventType = req.body.EventType;
 
@@ -31,7 +31,11 @@ const conversationsCallbackHandler = async (req : Request, res : Response) => {
                 const conversationProperties = {
                     friendly_name: customerDetails.display_name || customerNumber,
                     attributes: JSON.stringify({
-                        avatar: customerDetails.avatar
+                        avatar: customerDetails.avatar,
+                        hs_customer_id: customerDetails.customer_id,
+                        hs_customer_owner_email: customerDetails.hs_owner_email,
+                        hs_customer_owner_id: customerDetails.hs_owner_id,
+                        hs_name: customerDetails.display_name
                     })
                 };
                 return res.status(200).send(conversationProperties)
@@ -65,15 +69,23 @@ const conversationsCallbackHandler = async (req : Request, res : Response) => {
 
                 const customerDetails = await getCustomerByNumber(customerNumber) || {};
 
-                console.log(customerDetails);
-
                 await setCustomerParticipantProperties(customerParticipant, customerDetails);
             }
+
             break;
         }
         case "onConversationAdded": {
 
-            const response = await fetch('https://api.hubapi.com/crm/v3/objects/notes', {
+
+            const conversationSid = req.body.ConversationSid;
+            const conversation = await twilioClient.conversations
+            .conversations(conversationSid)
+            .fetch();
+
+
+            const conversationData = JSON.parse(conversation.attributes);
+
+            const createNoteReq = await fetch('https://api.hubapi.com/crm/v3/objects/notes', {
                 method: "POST",
                 headers: {
                     'Accept': 'application/json',
@@ -81,19 +93,29 @@ const conversationsCallbackHandler = async (req : Request, res : Response) => {
                     'Authorization': 'Bearer ' + process.env.HUBSPOT_API_KEY
                 },
                 body: JSON.stringify({
-                    "properties": {
-                        "hs_timestamp": Date.now().toString(),
-                        "hs_note_body": "Une nouvelle conversation entre Martine Marchand et Pradheep Rajendirane",
-                        "hubspot_owner_id": "14240720"
+                    properties: {
+                        hs_timestamp: Date.now().toString(),
+                        hs_note_body: `Une nouvelle conversation avec ${conversationData.hs_name}.`,
+                        hubspot_owner_id: conversationData.hs_customer_owner_id
                     }
                 })
-            })
+            });
 
-            const createNoteResponse = await response.json();
+            const createNoteResponse = await createNoteReq.json() as any;
 
-            console.log(createNoteResponse);
+            console.log(`https://api.hubapi.com/crm/v3/objects/notes/${createNoteResponse.id}/associations/contact/${conversationData.hs_customer_id}/202`);
 
+            const addNoteToContactReq = await fetch(`https://api.hubapi.com/crm/v3/objects/notes/${createNoteResponse.id}/associations/contact/${conversationData.hs_customer_id}/202`, {
+                method: "PUT",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + process.env.HUBSPOT_API_KEY
+                }
+            });
 
+            //console.log(createNoteResponse);
+            
             
             break;
         }

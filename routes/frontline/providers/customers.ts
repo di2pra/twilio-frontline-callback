@@ -13,13 +13,6 @@ const hubspotClient = new hubspot.Client({ accessToken: process.env.HUBSPOT_API_
 //     {
 //         'whatsapp:+12345678': 'john@example.com'
 //     }
-const customersToWorkersMap: {
-  [key: string]: string
-} = {
-  'whatsapp:+12345678': 'john@example.com',
-  'whatsapp:+1234567s': 'john@example.com'
-};
-
 export type IFrontlineCustomer = {
   customer_id: string | number,
   display_name: string,
@@ -37,6 +30,8 @@ export type IFrontlineCustomer = {
     [key: string]: string
   };
   worker: string;
+  hs_owner_id: string;
+  hs_owner_email: string;
 }
 
 // Customers list
@@ -90,46 +85,66 @@ export type IFrontlineCustomer = {
     }
 ];*/
 
-export const findWorkerForCustomer = async (customerNumber: string) => customersToWorkersMap[customerNumber];
+export const findWorkerForCustomer = async (customerNumber: string): Promise<string | undefined> => {
 
-export const findRandomWorker = async () => {
-  const onlyUnique = (value: any, index: any, self: any) => {
-    return self.indexOf(value) === index;
+  const publicObjectSearchRequest = {
+    filterGroups: [
+      { filters: [{ propertyName: 'hs_calculated_phone_number', operator: 'EQ' as FilterOperatorEnum, value: customerNumber }] }
+    ],
+    sorts: [JSON.stringify({ propertyName: 'lastmodifieddate', direction: 'ASCENDING' })],
+    properties: [
+      "email",
+      "firstname",
+      "lastname",
+      "hs_calculated_phone_number",
+      "hubspot_owner_id"
+    ],
+    limit: 1,
+    after: 0
   }
 
-  const workers = Object.values(customersToWorkersMap).filter(onlyUnique)
-  const randomIndex = Math.floor(Math.random() * workers.length)
+  try {
 
-  return workers[randomIndex]
-}
+    const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
+
+    if (result.results.length > 0) {
+
+      const customerData = result.results[0];
+
+      const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
+
+      return ownerData.email
+
+
+    } else {
+      return undefined
+    }
+
+  } catch (e) {
+    return undefined
+  }
+
+};
 
 export const getCustomersList = async (worker: string, pageSize: number, anchor: string) => {
 
-  //const filter = { propertyName: 'createdate', operator: 'GTE', value: Date.now() - 30 * 60000 }
-  //const filterGroup = { filters: [filter] }
-  const sort = JSON.stringify({ propertyName: 'lastmodifieddate', direction: 'ASCENDING' })
-  /*const query = 'test'*/
-  const properties = [
-    "email",
-    "firstname",
-    "lastname",
-    "hs_calculated_phone_number",
-    "hubspot_owner_id"
-  ];
-  const limit = pageSize
-  const after = 0
-
   const publicObjectSearchRequest = {
     filterGroups: [],
-    sorts: [sort],
-    properties,
-    limit,
-    after
+    sorts: [JSON.stringify([{ propertyName: 'lastmodifieddate', direction: 'ASCENDING' }])],
+    properties: [
+      "email",
+      "firstname",
+      "lastname",
+      "hs_calculated_phone_number",
+      "hubspot_owner_id"
+    ],
+    limit: pageSize,
+    after: 0
   }
 
   const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
 
-  const list = result.results.map(customer => ({
+  const list = result.results.map((customer: any) => ({
     display_name: `${customer.properties.firstname} ${customer.properties.lastname}`,
     customer_id: customer.id
   }));
@@ -139,7 +154,7 @@ export const getCustomersList = async (worker: string, pageSize: number, anchor:
   }
 
   if (anchor) {
-    const lastIndex = list.findIndex((c) => String(c.customer_id) === String(anchor))
+    const lastIndex = list.findIndex((c: any) => String(c.customer_id) === String(anchor))
     const nextIndex = lastIndex + 1
     return list.slice(nextIndex, nextIndex + pageSize)
   } else {
@@ -147,27 +162,22 @@ export const getCustomersList = async (worker: string, pageSize: number, anchor:
   }
 };
 
-export const getCustomerByNumber = async (customerNumber: string) : Promise<IFrontlineCustomer> => {
-
-  const filter = { propertyName: 'hs_calculated_phone_number', operator: 'EQ' as FilterOperatorEnum, value: customerNumber }
-  const sort = JSON.stringify({ propertyName: 'lastmodifieddate', direction: 'ASCENDING' })
-  const filterGroup = { filters: [filter] }
-  const properties = [
-    "email",
-    "firstname",
-    "lastname",
-    "hs_calculated_phone_number",
-    "hubspot_owner_id"
-  ];
-  const limit = 1
-  const after = 0
+export const getCustomerByNumber = async (customerNumber: string): Promise<IFrontlineCustomer> => {
 
   const publicObjectSearchRequest = {
-    filterGroups: [filterGroup],
-    sorts: [sort],
-    properties,
-    limit,
-    after
+    filterGroups: [
+      { filters: [{ propertyName: 'hs_calculated_phone_number', operator: 'EQ' as FilterOperatorEnum, value: customerNumber }] }
+    ],
+    sorts: [JSON.stringify({ propertyName: 'lastmodifieddate', direction: 'ASCENDING' })],
+    properties: [
+      "email",
+      "firstname",
+      "lastname",
+      "hs_calculated_phone_number",
+      "hubspot_owner_id"
+    ],
+    limit: 1,
+    after: 0
   }
 
   const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
@@ -175,6 +185,8 @@ export const getCustomerByNumber = async (customerNumber: string) : Promise<IFro
   if (result.results.length > 0) {
 
     const customerData = result.results[0];
+
+    const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
 
     return {
       customer_id: customerData.id,
@@ -184,7 +196,8 @@ export const getCustomerByNumber = async (customerNumber: string) : Promise<IFro
         { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
         { type: 'whatsapp', value: customerData.properties.hs_calculated_phone_number }
       ],
-      worker: 'prajendirane@twilio.com'
+      hs_owner_email: ownerData.email,
+      hs_owner_id: customerData.properties.hubspot_owner_id
     } as IFrontlineCustomer
 
   } else {
@@ -192,7 +205,7 @@ export const getCustomerByNumber = async (customerNumber: string) : Promise<IFro
   }
 };
 
-export const getCustomerById = async (customerId: string) : Promise<IFrontlineCustomer> => {
+export const getCustomerById = async (customerId: string): Promise<IFrontlineCustomer> => {
 
   const filter = { propertyName: 'hs_object_id', operator: 'EQ' as FilterOperatorEnum, value: customerId }
   const filterGroup = { filters: [filter] }
