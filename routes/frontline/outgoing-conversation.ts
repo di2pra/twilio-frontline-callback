@@ -33,6 +33,9 @@ const handleGetProxyAddress = (req: Request, res: Response) => {
   // In order to start a new conversation ConversationsApp need a proxy address
   // otherwise the app doesn't know from which number send a message to a customer
   if (proxyAddress) {
+
+    console.log({ proxy_address: proxyAddress })
+
     res.status(200).send({ proxy_address: proxyAddress });
     console.log("Got proxy address!");
     return;
