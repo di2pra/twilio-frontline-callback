@@ -103,8 +103,6 @@ const conversationsCallbackHandler = async (req : Request, res : Response) => {
 
             const createNoteResponse = await createNoteReq.json() as any;
 
-            console.log(`https://api.hubapi.com/crm/v3/objects/notes/${createNoteResponse.id}/associations/contact/${conversationData.hs_customer_id}/202`);
-
             const addNoteToContactReq = await fetch(`https://api.hubapi.com/crm/v3/objects/notes/${createNoteResponse.id}/associations/contact/${conversationData.hs_customer_id}/202`, {
                 method: "PUT",
                 headers: {
@@ -113,9 +111,6 @@ const conversationsCallbackHandler = async (req : Request, res : Response) => {
                     'Authorization': 'Bearer ' + process.env.HUBSPOT_API_KEY
                 }
             });
-
-            //console.log(createNoteResponse);
-            
             
             break;
         }
