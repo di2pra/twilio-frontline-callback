@@ -2,17 +2,38 @@ import * as hubspot from '@hubspot/api-client';
 import { FilterOperatorEnum } from '@hubspot/api-client/lib/codegen/crm/companies/models/Filter';
 const hubspotClient = new hubspot.Client({ accessToken: process.env.HUBSPOT_API_KEY })
 
-// Map between customer address and worker identity
-// Used to determine to which worker route a new conversation with a particular customer
-//
-// {
-//     customerAddress: workerIdentity
-// }
-//
-// Example:
-//     {
-//         'whatsapp:+12345678': 'john@example.com'
-//     }
+const HubspotFrontlineUserMapping : {
+  [key: string] : {
+    hs_owner_id: string;
+    name: string;
+  }
+} = {
+  'prajendirane@twilio.com': {
+    hs_owner_id: '297097185',
+    name: 'Pradheep Rajendirane'
+  },
+  'razrhar+frontline@twilio.com': {
+    hs_owner_id: '300681927',
+    name: 'Radia Azrhar'
+  }
+}
+
+const FrontlineHubspotUserMapping : {
+  [key: string] : {
+    frontline_id: string;
+    name: string;
+  }
+} = {
+  '297097185': {
+    frontline_id: 'prajendirane@twilio.com',
+    name: 'Pradheep Rajendirane'
+  },
+  '300681927': {
+    frontline_id: 'razrhar+frontline@twilio.com',
+    name: 'Radia Azrhar'
+  }
+}
+
 export type IFrontlineCustomer = {
   customer_id: string | number,
   display_name: string,
@@ -30,8 +51,8 @@ export type IFrontlineCustomer = {
     [key: string]: string
   };
   worker: string;
-  hs_owner_id: string;
-  hs_owner_email: string;
+  hs_owner_id?: string;
+  hs_owner_email?: string;
 }
 
 // Customers list
@@ -138,13 +159,13 @@ export const getCustomersList = async (worker: string, pageSize: number, anchor:
       "hs_calculated_phone_number",
       "hubspot_owner_id"
     ],
-    limit: pageSize,
+    limit: 100,
     after: 0
   }
 
   const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
 
-  const list = result.results.map((customer: any) => ({
+  const list = result.results.filter((item) => item.properties.hubspot_owner_id === HubspotFrontlineUserMapping[worker].hs_owner_id).map((customer: any) => ({
     display_name: `${customer.properties.firstname} ${customer.properties.lastname}`,
     customer_id: customer.id
   }));
@@ -241,8 +262,13 @@ export const getCustomerById = async (customerId: string): Promise<IFrontlineCus
         { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
         { type: 'whatsapp', value: customerData.properties.hs_calculated_phone_number }
       ],
+      details: {
+        title: 'Commercial',
+        content: FrontlineHubspotUserMapping[customerData.properties.hubspot_owner_id].name
+      },
       links: [
-        { type: 'Hubspot', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `Fiche de ${customerData.properties.firstname} ${customerData.properties.lastname}` }
+        { type: 'Hubspot', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `Fiche de ${customerData.properties.firstname} ${customerData.properties.lastname}` },
+        { type: 'Commercial', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: FrontlineHubspotUserMapping[customerData.properties.hubspot_owner_id].name }
       ],
       worker: 'prajendirane@twilio.com'
     } as IFrontlineCustomer
