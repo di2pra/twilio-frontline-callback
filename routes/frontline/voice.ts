@@ -61,8 +61,6 @@ export const incomingVoiceStatusCallbackHandler = async (req: Request, res: Resp
 
     const createCallResponse = await createCallReq.json() as any;
 
-    console.log(createCallResponse);
-
     const addCallToContactReq = await fetch(`https://api.hubapi.com/crm/v3/objects/calls/${createCallResponse.id}/associations/contact/${customerDetails.customer_id}/194`, {
       method: "PUT",
       headers: {
@@ -71,11 +69,6 @@ export const incomingVoiceStatusCallbackHandler = async (req: Request, res: Resp
         'Authorization': 'Bearer ' + process.env.HUBSPOT_API_KEY
       }
     });
-
-    const addCallToContactResponse = await addCallToContactReq.json() as any;
-
-
-    console.log(addCallToContactResponse)
 
   }
 
