@@ -16,8 +16,10 @@ const routeConversation = async (conversationSid : string, customerNumber : stri
     if (!workerIdentity) { // Customer doesn't have a worker
 
         // Or you can define default worker for unknown customers.
-        workerIdentity = 'prajendirane@twilio.com'
+        //workerIdentity = 'prajendirane@twilio.com'
 
+        console.warn("Routing failed, please add workers to customersToWorkersMap or define a default worker", { conversationSid: conversationSid });
+        return;
     }
 
     await routeConversationToWorker(conversationSid, workerIdentity);

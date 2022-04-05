@@ -15,7 +15,7 @@ export const incomingVoiceActionHandler = async (req : Request, res : Response) 
 
   if(req.body.Result === "dialed-call-incomplete") {
     responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >Votre conseiller est occupé, je vous redirige vers le centre d'appel</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
-  } else if (req.body.Result === "failed-create-conversation") {
+  } else if (req.body.Result === "no-other-participants" || req.body.Result === "internal-error") {
     responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >Je vous redirige vers le premier conseiller disponible de notre centre d'appel.</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
   }
 

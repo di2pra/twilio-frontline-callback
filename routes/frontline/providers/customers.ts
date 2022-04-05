@@ -2,46 +2,6 @@ import * as hubspot from '@hubspot/api-client';
 import { FilterOperatorEnum } from '@hubspot/api-client/lib/codegen/crm/companies/models/Filter';
 const hubspotClient = new hubspot.Client({ accessToken: process.env.HUBSPOT_API_KEY })
 
-const HubspotFrontlineUserMapping : {
-  [key: string] : {
-    hs_owner_id: string;
-    name: string;
-  }
-} = {
-  'prajendirane@twilio.com': {
-    hs_owner_id: '297097185',
-    name: 'Pradheep Rajendirane'
-  },
-  'razrhar+frontline@twilio.com': {
-    hs_owner_id: '300681927',
-    name: 'Radia Azrhar'
-  },
-  'spaltrie+frontline@twilio.com': {
-    hs_owner_id: '301488375',
-    name: 'Sébastien Paltrié'
-  }
-}
-
-const FrontlineHubspotUserMapping : {
-  [key: string] : {
-    frontline_id: string;
-    name: string;
-  }
-} = {
-  '297097185': {
-    frontline_id: 'prajendirane@twilio.com',
-    name: 'Pradheep Rajendirane'
-  },
-  '300681927': {
-    frontline_id: 'razrhar+frontline@twilio.com',
-    name: 'Radia Azrhar'
-  },
-  '301488375': {
-    frontline_id: 'spaltrie+frontline@twilio.com',
-    name: 'Sébastien Paltrié'
-  }
-}
-
 export type IFrontlineCustomer = {
   customer_id: string | number,
   display_name: string,
@@ -123,10 +83,22 @@ export const getCustomersList = async (worker: string, pageSize: number, anchor:
 
   const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
 
-  const list = result.results.filter((item) => item.properties.hubspot_owner_id === HubspotFrontlineUserMapping[worker].hs_owner_id).map((customer: any) => ({
+  const ownerList = await hubspotClient.crm.owners.ownersApi.getPage();
+
+  const filteredOwner = ownerList.results.find((item) => item.email === worker);
+
+  let list = result.results.map((customer: any) => ({
     display_name: `${customer.properties.firstname} ${customer.properties.lastname}`,
     customer_id: customer.id
   }));
+
+  if (filteredOwner) {
+    list = result.results.filter((item) => item.properties.hubspot_owner_id === filteredOwner.id).map((customer: any) => ({
+      display_name: `${customer.properties.firstname} ${customer.properties.lastname}`,
+      customer_id: customer.id
+    }));
+  }
+
 
   if (!pageSize) {
     return list
@@ -165,7 +137,11 @@ export const getCustomerByNumber = async (customerNumber: string): Promise<IFron
 
     const customerData = result.results[0];
 
-    const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
+    let ownerData: any = {};
+
+    if (customerData.properties.hubspot_owner_id) {
+      ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
+    }
 
     return {
       customer_id: customerData.id,
@@ -224,11 +200,11 @@ export const getCustomerById = async (customerId: string): Promise<IFrontlineCus
       ],
       details: {
         title: 'Commercial',
-        content: FrontlineHubspotUserMapping[customerData.properties.hubspot_owner_id].name
+        content: `${ownerData.firstName} ${ownerData.lastName}`
       },
       links: [
         { type: 'Hubspot', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `Fiche de ${customerData.properties.firstname} ${customerData.properties.lastname}` },
-        { type: 'Commercial', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: FrontlineHubspotUserMapping[customerData.properties.hubspot_owner_id].name }
+        { type: 'Commercial', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `${ownerData.firstName} ${ownerData.lastName}` }
       ],
       worker: ownerData.email,
       hs_owner_email: ownerData.email,

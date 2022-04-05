@@ -24,7 +24,7 @@ const conversationsCallbackHandler = async (req: Request, res: Response) => {
             const isIncomingConversation = !!customerNumber
 
             if (isIncomingConversation) {
-                let customerDetails = await getCustomerByNumber(customerNumber) || {};
+                let customerDetails = await getCustomerByNumber(customerNumber);
 
                 const conversationProperties = {
                     friendly_name: customerDetails.display_name || customerNumber,
@@ -36,6 +36,8 @@ const conversationsCallbackHandler = async (req: Request, res: Response) => {
                         hs_name: customerDetails.display_name
                     })
                 };
+
+                
                 return res.status(200).send(conversationProperties)
             }
             break;
