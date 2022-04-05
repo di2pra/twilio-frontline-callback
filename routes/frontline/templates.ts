@@ -35,7 +35,7 @@ const handleGetTemplatesByCustomerIdCallback = async (req : Request, res : Respo
 
     // Prepare templates categories
     const openersCategory = {
-        display_name: 'Openers', // Category name
+        display_name: 'Démarrer une conversation', // Category name
         templates: [
             { content: compileTemplate(OPENER_NEXT_STEPS, customerDetails) }, // Compiled template
             { content: compileTemplate(OPENER_NEW_PRODUCT, customerDetails) },
@@ -43,7 +43,7 @@ const handleGetTemplatesByCustomerIdCallback = async (req : Request, res : Respo
         ]
     };
     const repliesCategory = {
-        display_name: 'Replies',
+        display_name: 'Répondre à un message',
         templates: [
             { content: compileTemplate(REPLY_SENT, customerDetails) },
             { content: compileTemplate(REPLY_RATES, customerDetails) },
@@ -53,7 +53,7 @@ const handleGetTemplatesByCustomerIdCallback = async (req : Request, res : Respo
         ]
     };
     const closingCategory = {
-        display_name: 'Closing',
+        display_name: 'Clore une conversation',
         templates: [
             { content: compileTemplate(CLOSING_ASK_REVIEW, customerDetails) },
         ]
