@@ -59,8 +59,9 @@ export type IFrontlineCustomer = {
     [key: string]: string
   };
   worker: string;
-  hs_owner_id?: string;
-  hs_owner_email?: string;
+  hs_owner_name: string;
+  hs_owner_id: string;
+  hs_owner_email: string;
 }
 
 export const findWorkerForCustomer = async (customerNumber: string): Promise<string | undefined> => {
@@ -211,6 +212,8 @@ export const getCustomerById = async (customerId: string): Promise<IFrontlineCus
 
     const customerData = result.results[0];
 
+    const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
+
     return {
       customer_id: customerData.id,
       display_name: `${customerData.properties.firstname} ${customerData.properties.lastname}`,
@@ -227,7 +230,10 @@ export const getCustomerById = async (customerId: string): Promise<IFrontlineCus
         { type: 'Hubspot', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `Fiche de ${customerData.properties.firstname} ${customerData.properties.lastname}` },
         { type: 'Commercial', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: FrontlineHubspotUserMapping[customerData.properties.hubspot_owner_id].name }
       ],
-      worker: 'prajendirane@twilio.com'
+      worker: ownerData.email,
+      hs_owner_email: ownerData.email,
+      hs_owner_name: `${ownerData.firstName} ${ownerData.lastName}`,
+      hs_owner_id: customerData.properties.hubspot_owner_id
     } as IFrontlineCustomer
 
   } else {

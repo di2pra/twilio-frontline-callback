@@ -65,7 +65,7 @@ const handleGetTemplatesByCustomerIdCallback = async (req : Request, res : Respo
 
 const compileTemplate = (template : string, customer : IFrontlineCustomer) => {
     let compiledTemplate = template.replace(/{{Name}}/, customer.display_name);
-    compiledTemplate = compiledTemplate.replace(/{{Author}}/, customer.worker);
+    compiledTemplate = compiledTemplate.replace(/{{Author}}/, customer.hs_owner_name);
     return compiledTemplate;
 };
 
