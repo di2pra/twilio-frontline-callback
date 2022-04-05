@@ -15,6 +15,10 @@ const HubspotFrontlineUserMapping : {
   'razrhar+frontline@twilio.com': {
     hs_owner_id: '300681927',
     name: 'Radia Azrhar'
+  },
+  'spaltrie+frontline@twilio.com': {
+    hs_owner_id: '301488375',
+    name: 'Sébastien Paltrié'
   }
 }
 
@@ -31,6 +35,10 @@ const FrontlineHubspotUserMapping : {
   '300681927': {
     frontline_id: 'razrhar+frontline@twilio.com',
     name: 'Radia Azrhar'
+  },
+  '301488375': {
+    frontline_id: 'spaltrie+frontline@twilio.com',
+    name: 'Sébastien Paltrié'
   }
 }
 
@@ -54,57 +62,6 @@ export type IFrontlineCustomer = {
   hs_owner_id?: string;
   hs_owner_email?: string;
 }
-
-// Customers list
-// Example:
-// [
-//   {
-//      customer_id: 98,
-//      display_name: 'Bobby Shaftoe',
-//      channels: [
-//          { type: 'email', value: 'bobby@example.com' },
-//          { type: 'sms', value: '+123456789' },
-//          { type: 'whatsapp', value: 'whatsapp:+123456789' }
-//      ],
-//      links: [
-//          { type: 'Facebook', value: 'https://facebook.com', display_name: 'Social Media Profile' }
-//      ],
-//      details:{
-//          title: "Information",
-//          content: "Status: Active" + "\n\n" + "Score: 100"
-//      },
-//      worker: 'john@example.com'
-//   }
-// ]
-
-/*const customers = [
-    {
-        customer_id: 1,
-        display_name: 'Jean-Pierre Foucault',
-        channels: [
-            { type: 'email', value: 'jpfoucault@tf1,fr' },
-            { type: 'sms', value: '+14342018621' },
-            { type: 'whatsapp', value: '+33644645117' }
-        ],
-        links: [
-            { type: 'Facebook', value: 'https://facebook.com', display_name: 'Social Media Profile' }
-        ],
-        worker: 'prajendirane@twilio.com'
-    },
-    {
-        customer_id: 2,
-        display_name: 'Martine Marchand',
-        channels: [
-            { type: 'email', value: 'bobby@example.com' },
-            { type: 'sms', value: '+16067555493' },
-            { type: 'whatsapp', value: '+33644645117' }
-        ],
-        links: [
-            { type: 'Facebook', value: 'https://facebook.com', display_name: 'Social Media Profile' }
-        ],
-        worker: 'prajendirane@twilio.com'
-    }
-];*/
 
 export const findWorkerForCustomer = async (customerNumber: string): Promise<string | undefined> => {
 
