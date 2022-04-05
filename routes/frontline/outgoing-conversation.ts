@@ -23,10 +23,7 @@ const handleGetProxyAddress = (req: Request, res: Response) => {
   console.log('Getting Proxy Address');
 
   const body = req.body;
-  const workerIdentity = body.Worker;
-  const customerId = body.CustomerId;
   const channelName = body.ChannelType;
-  const channelAddress = body.ChannelValue;
 
   const proxyAddress = getCustomerProxyAddress(channelName);
 
