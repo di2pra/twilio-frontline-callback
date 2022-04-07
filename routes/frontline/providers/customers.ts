@@ -1,10 +1,13 @@
 import * as hubspot from '@hubspot/api-client';
+import { FilterGroup, PublicObjectSearchRequest } from '@hubspot/api-client/lib/codegen/crm/companies';
 import { FilterOperatorEnum } from '@hubspot/api-client/lib/codegen/crm/companies/models/Filter';
 const hubspotClient = new hubspot.Client({ accessToken: process.env.HUBSPOT_API_KEY })
 
 export type IFrontlineCustomer = {
   customer_id: string | number,
   display_name: string,
+  firstname: string,
+  lastname: string,
   avatar?: string,
   channels: {
     type: string;
@@ -20,6 +23,8 @@ export type IFrontlineCustomer = {
   };
   worker: string;
   hs_owner_name: string;
+  hs_owner_firstname: string;
+  hs_owner_lastname: string;
   hs_owner_id: string;
   hs_owner_email: string;
 }
@@ -52,7 +57,7 @@ export const findWorkerForCustomer = async (customerNumber: string): Promise<str
 
       const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
 
-      if(ownerData.email) {
+      if (ownerData.email) {
         return ownerData.email
       } else {
         return null
@@ -69,10 +74,35 @@ export const findWorkerForCustomer = async (customerNumber: string): Promise<str
 
 };
 
-export const getCustomersList = async (worker: string, pageSize: number, anchor: string) => {
+export const getCustomersList = async (worker: string, pageSize: number, anchor: string, query: string | undefined) => {
 
-  const publicObjectSearchRequest = {
-    filterGroups: [],
+  let filterGroups : FilterGroup[] = [];
+
+  if (query) {
+    filterGroups = [
+      {
+        "filters": [
+          {
+            "propertyName": "firstname",
+            "operator": "CONTAINS_TOKEN",
+            "value": query
+          }
+        ]
+      },
+      {
+        "filters": [
+          {
+            "propertyName": "lastname",
+            "operator": "CONTAINS_TOKEN",
+            "value": query
+          }
+        ]
+      }
+    ]
+  }
+
+  const publicObjectSearchRequest : PublicObjectSearchRequest = {
+    filterGroups: filterGroups,
     sorts: [JSON.stringify([{ propertyName: 'lastmodifieddate', direction: 'ASCENDING' }])],
     properties: [
       "email",
@@ -152,11 +182,17 @@ export const getCustomerByNumber = async (customerNumber: string): Promise<IFron
       return {
         customer_id: customerData.id,
         display_name: `${customerData.properties.firstname} ${customerData.properties.lastname}`,
+        firstname: customerData.properties.firstname,
+        lastname: customerData.properties.lastname,
         channels: [
           { type: 'email', value: customerData.properties.email },
           { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
           { type: 'whatsapp', value: customerData.properties.hs_calculated_phone_number }
         ],
+        worker: ownerData.email,
+        hs_owner_name: `${ownerData.firstName} ${ownerData.lastName}`,
+        hs_owner_firstname: ownerData.firstName,
+        hs_owner_lastname: ownerData.lastName,
         hs_owner_email: ownerData.email,
         hs_owner_id: customerData.properties.hubspot_owner_id
       } as IFrontlineCustomer
@@ -206,6 +242,8 @@ export const getCustomerById = async (customerId: string): Promise<IFrontlineCus
       return {
         customer_id: customerData.id,
         display_name: `${customerData.properties.firstname} ${customerData.properties.lastname}`,
+        firstname: customerData.properties.firstname,
+        lastname: customerData.properties.lastname,
         channels: [
           { type: 'email', value: customerData.properties.email },
           { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
@@ -222,6 +260,8 @@ export const getCustomerById = async (customerId: string): Promise<IFrontlineCus
         worker: ownerData.email,
         hs_owner_email: ownerData.email,
         hs_owner_name: `${ownerData.firstName} ${ownerData.lastName}`,
+        hs_owner_firstname: ownerData.firstName,
+        hs_owner_lastname: ownerData.lastName,
         hs_owner_id: customerData.properties.hubspot_owner_id
       } as IFrontlineCustomer
 

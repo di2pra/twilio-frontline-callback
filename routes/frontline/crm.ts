@@ -38,15 +38,17 @@ const handleGetCustomersListCallback = async (req: Request, res: Response) => {
   const body = req.body;
   const workerIdentity = req.body.Worker;
   const pageSize = parseInt(body.PageSize);
+  const query : string | undefined = body.Query;
   const anchor = body.Anchor;
 
   // Fetch Customers list based on information about a worker, that requested it
-  const customersList = await getCustomersList(workerIdentity, pageSize, anchor);
+  const customersList = await getCustomersList(workerIdentity, pageSize, anchor, query);
 
   // Respond with Customers object
   res.send({
     objects: {
-      customers: customersList
+      customers: customersList,
+      searchable: true
     }
   });
 };

@@ -38,7 +38,8 @@ const handleGetTemplatesByCustomerIdCallback = async (req : Request, res : Respo
         display_name: 'Démarrer une conversation', // Category name
         templates: [
             { content: compileTemplate(OPENER_NEXT_STEPS, customerDetails) },
-            { content : WHATSAPP_MSG, whatsAppApproved: true}
+            { content : compileTemplate(WHATSAPP_MSG, customerDetails), whatsAppApproved: true},
+            { content : compileTemplate(WHATSAPP_MSG_2, customerDetails), whatsAppApproved: true}
         ]
     };
     const repliesCategory = {
@@ -61,11 +62,17 @@ const handleGetTemplatesByCustomerIdCallback = async (req : Request, res : Respo
 const compileTemplate = (template : string, customer : IFrontlineCustomer) => {
     let compiledTemplate = template.replace(/{{Name}}/, customer.display_name);
     compiledTemplate = compiledTemplate.replace(/{{Author}}/, customer.hs_owner_name);
+
+    compiledTemplate = compiledTemplate.replace(/{{customerFirstname}}/, customer.firstname);
+    compiledTemplate = compiledTemplate.replace(/{{agentFirstname}}/, customer.hs_owner_firstname);
+    compiledTemplate = compiledTemplate.replace(/{{agentLastname}}/, customer.hs_owner_lastname);
+    compiledTemplate = compiledTemplate.replace(/{{companyName}}/, "MACSF");
     return compiledTemplate;
 };
 
 const OPENER_NEXT_STEPS = 'Bonjour {{Name}} nous avons traité vos documents, vous pouvez me contacter ici. {{Author}}.';
-const WHATSAPP_MSG = 'Thank you for purchasing Pizza! We value your feedback and would like to learn more about your experience.';
+const WHATSAPP_MSG = `Bonjour {{customerFirstname}}, je suis {{agentFirstname}} {{agentLastname}}, votre conseiller chez {{companyName}}, je me permets de vous contacter pour qu'on puisse discuter de votre contrat. Envoyez moi un message dès que vous êtes disponible. Merci.`;
+const WHATSAPP_MSG_2 = `Hi {{customerFirstname}}, were we able to solve the issue that you were facing?`;
 /*const OPENER_NEW_PRODUCT = 'Hello {{Name}} we have a new product out which may be of interest to your business. Drop me a message. {{Author}}.';
 const OPENER_ON_MY_WAY ='Just to confirm I am on my way to your office. {{Name}}.';*/
 
