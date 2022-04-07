@@ -1,3 +1,4 @@
+import { channel } from "diagnostics_channel";
 import { Request, Response } from "express";
 
 const outgoingConversationCallbackHandler = (req: Request, res: Response) => {
@@ -25,6 +26,8 @@ const handleGetProxyAddress = (req: Request, res: Response) => {
   const body = req.body;
   const channelName = body.ChannelType;
 
+  console.log(channelName);
+
   const proxyAddress = getCustomerProxyAddress(channelName);
 
   // In order to start a new conversation ConversationsApp need a proxy address
@@ -44,7 +47,7 @@ const handleGetProxyAddress = (req: Request, res: Response) => {
 
 const getCustomerProxyAddress = (channelName: string) => {
   if (channelName === 'whatsapp') {
-    return process.env.FRONTLINE_NUMBER;
+    return `whatsapp:${process.env.FRONTLINE_NUMBER}`;
   } else {
     return process.env.FRONTLINE_NUMBER;
   }

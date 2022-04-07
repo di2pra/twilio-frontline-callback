@@ -11,19 +11,25 @@ const handleGetCustomerDetailsByCustomerIdCallback = async (req: Request, res: R
   // and information about a worker, that requested that information
   const customerDetails = await getCustomerById(customerId);
 
-  // Respond with Contact object
-  res.send({
-    objects: {
-      customer: {
-        customer_id: customerDetails.customer_id,
-        display_name: customerDetails.display_name,
-        channels: customerDetails.channels,
-        links: customerDetails.links,
-        avatar: customerDetails.avatar,
-        details: customerDetails.details
+  if (customerDetails) {
+    // Respond with Contact object
+    res.send({
+      objects: {
+        customer: {
+          customer_id: customerDetails.customer_id,
+          display_name: customerDetails.display_name,
+          channels: customerDetails.channels,
+          links: customerDetails.links,
+          avatar: customerDetails.avatar,
+          details: customerDetails.details
+        }
       }
-    }
-  });
+    });
+  } else {
+    res.send({})
+  }
+
+
 };
 
 const handleGetCustomersListCallback = async (req: Request, res: Response) => {

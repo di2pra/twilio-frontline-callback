@@ -20,26 +20,41 @@ const conversationsCallbackHandler = async (req: Request, res: Response) => {
              * More info about the `onConversationAdd` webhook: https://www.twilio.com/docs/conversations/conversations-webhooks#onconversationadd
              * More info about handling incoming conversations: https://www.twilio.com/docs/frontline/handle-incoming-conversations
              */
-            const customerNumber = req.body['MessagingBinding.Address'];
-            const isIncomingConversation = !!customerNumber
+            let customerNumber = req.body['MessagingBinding.Address'];
 
-            if (isIncomingConversation) {
-                let customerDetails = await getCustomerByNumber(customerNumber);
+            if (customerNumber) {
 
-                const conversationProperties = {
-                    friendly_name: customerDetails.display_name || customerNumber,
-                    attributes: JSON.stringify({
-                        avatar: customerDetails.avatar,
-                        hs_customer_id: customerDetails.customer_id,
-                        hs_customer_owner_email: customerDetails.hs_owner_email,
-                        hs_customer_owner_id: customerDetails.hs_owner_id,
-                        hs_name: customerDetails.display_name
-                    })
-                };
+                customerNumber = (customerNumber.split(':').length > 1) ? customerNumber.split(':')[1] : customerNumber;
+                const isIncomingConversation = !!customerNumber;
 
-                
-                return res.status(200).send(conversationProperties)
+
+                if (isIncomingConversation) {
+                    let customerDetails = await getCustomerByNumber(customerNumber);
+
+                    if (customerDetails) {
+                        const conversationProperties = {
+                            friendly_name: customerDetails.display_name || customerNumber,
+                            attributes: JSON.stringify({
+                                avatar: customerDetails.avatar,
+                                hs_customer_id: customerDetails.customer_id,
+                                hs_customer_owner_email: customerDetails.hs_owner_email,
+                                hs_customer_owner_id: customerDetails.hs_owner_id,
+                                hs_name: customerDetails.display_name
+                            })
+                        };
+
+                        return res.status(200).send(conversationProperties)
+                    } else {
+                        return res.status(200).send({})
+                    }
+                } else {
+                    return res.status(200).send({})
+                }
+
+            } else {
+                return res.status(200).send({})
             }
+
             break;
         }
         case "onParticipantAdded": {
@@ -57,10 +72,12 @@ const conversationsCallbackHandler = async (req: Request, res: Response) => {
              */
             const conversationSid = req.body.ConversationSid;
             const participantSid = req.body.ParticipantSid;
-            const customerNumber = req.body['MessagingBinding.Address'];
+            let customerNumber = req.body['MessagingBinding.Address'];
             const isCustomer = customerNumber && !req.body.Identity;
 
             if (isCustomer) {
+
+                customerNumber = (customerNumber.split(':').length > 1) ? customerNumber.split(':')[1] : customerNumber;
 
                 /* ================
                 UPDATE PARTICIPANT CUSTOMER ATTRIBUTES
@@ -74,7 +91,7 @@ const conversationsCallbackHandler = async (req: Request, res: Response) => {
 
                 const customerDetails = await getCustomerByNumber(customerNumber);
 
-                if(customerDetails) {
+                if (customerDetails) {
                     await setCustomerParticipantProperties(customerParticipant, customerDetails);
 
                     const createNoteReq = await fetch('https://api.hubapi.com/crm/v3/objects/notes', {
@@ -92,9 +109,9 @@ const conversationsCallbackHandler = async (req: Request, res: Response) => {
                             }
                         })
                     });
-    
+
                     const createNoteResponse = await createNoteReq.json() as any;
-    
+
                     const addNoteToContactReq = await fetch(`https://api.hubapi.com/crm/v3/objects/notes/${createNoteResponse.id}/associations/contact/${customerDetails.customer_id}/202`, {
                         method: "PUT",
                         headers: {
@@ -104,7 +121,7 @@ const conversationsCallbackHandler = async (req: Request, res: Response) => {
                         }
                     });
                 }
-                
+
 
             }
 

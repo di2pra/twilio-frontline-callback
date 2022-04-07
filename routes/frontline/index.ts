@@ -4,7 +4,7 @@ import outgoingConversationCallbackHandler from './outgoing-conversation.js';
 import routingCallbackHandler from './routing.js';
 import templatesCallbackHandler from './templates.js';
 import conversationsCallbackHandler from './twilio-conversations.js';
-import { incomingVoiceActionHandler, incomingVoiceCallbackHandler, incomingVoiceStatusCallbackHandler } from './voice.js';
+import { incomingVoiceActionHandler, incomingVoiceCallbackHandler, incomingVoiceStatusCallbackHandler, outgoingVoiceStatusCallbackHandler } from './voice.js';
 
 export default (router: Express) => {
 
@@ -15,5 +15,6 @@ export default (router: Express) => {
   router.post("/frontline/callbacks/templates", templatesCallbackHandler);
   router.post("/frontline/callbacks/voiceIncoming", incomingVoiceCallbackHandler);
   router.post("/frontline/callback/voiceAction", incomingVoiceActionHandler);
-  router.post("/frontline/callback/voiceStatus", incomingVoiceStatusCallbackHandler);
+  router.post("/frontline/callback/incomingVoiceStatus", incomingVoiceStatusCallbackHandler);
+  router.post("/frontline/callback/outgoingVoiceStatus", outgoingVoiceStatusCallbackHandler);
 };

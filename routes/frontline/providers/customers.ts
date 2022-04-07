@@ -24,7 +24,7 @@ export type IFrontlineCustomer = {
   hs_owner_email: string;
 }
 
-export const findWorkerForCustomer = async (customerNumber: string): Promise<string | undefined> => {
+export const findWorkerForCustomer = async (customerNumber: string): Promise<string | null> => {
 
   const publicObjectSearchRequest = {
     filterGroups: [
@@ -52,15 +52,19 @@ export const findWorkerForCustomer = async (customerNumber: string): Promise<str
 
       const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
 
-      return ownerData.email
+      if(ownerData.email) {
+        return ownerData.email
+      } else {
+        return null
+      }
 
 
     } else {
-      return undefined
+      return null
     }
 
   } catch (e) {
-    return undefined
+    return null
   }
 
 };
@@ -113,7 +117,7 @@ export const getCustomersList = async (worker: string, pageSize: number, anchor:
   }
 };
 
-export const getCustomerByNumber = async (customerNumber: string): Promise<IFrontlineCustomer> => {
+export const getCustomerByNumber = async (customerNumber: string): Promise<IFrontlineCustomer | null> => {
 
   const publicObjectSearchRequest = {
     filterGroups: [
@@ -131,36 +135,43 @@ export const getCustomerByNumber = async (customerNumber: string): Promise<IFron
     after: 0
   }
 
-  const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
+  try {
 
-  if (result.results.length > 0) {
+    const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
 
-    const customerData = result.results[0];
+    if (result.results.length > 0) {
 
-    let ownerData: any = {};
+      const customerData = result.results[0];
 
-    if (customerData.properties.hubspot_owner_id) {
-      ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
+      let ownerData: any = {};
+
+      if (customerData.properties.hubspot_owner_id) {
+        ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
+      }
+
+      return {
+        customer_id: customerData.id,
+        display_name: `${customerData.properties.firstname} ${customerData.properties.lastname}`,
+        channels: [
+          { type: 'email', value: customerData.properties.email },
+          { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
+          { type: 'whatsapp', value: customerData.properties.hs_calculated_phone_number }
+        ],
+        hs_owner_email: ownerData.email,
+        hs_owner_id: customerData.properties.hubspot_owner_id
+      } as IFrontlineCustomer
+
+    } else {
+      return null
     }
 
-    return {
-      customer_id: customerData.id,
-      display_name: `${customerData.properties.firstname} ${customerData.properties.lastname}`,
-      channels: [
-        { type: 'email', value: customerData.properties.email },
-        { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
-        { type: 'whatsapp', value: customerData.properties.hs_calculated_phone_number }
-      ],
-      hs_owner_email: ownerData.email,
-      hs_owner_id: customerData.properties.hubspot_owner_id
-    } as IFrontlineCustomer
-
-  } else {
-    return {} as IFrontlineCustomer
+  } catch (error) {
+    return null
   }
+
 };
 
-export const getCustomerById = async (customerId: string): Promise<IFrontlineCustomer> => {
+export const getCustomerById = async (customerId: string): Promise<IFrontlineCustomer | null> => {
 
   const filter = { propertyName: 'hs_object_id', operator: 'EQ' as FilterOperatorEnum, value: customerId }
   const filterGroup = { filters: [filter] }
@@ -182,37 +193,45 @@ export const getCustomerById = async (customerId: string): Promise<IFrontlineCus
     after
   }
 
-  const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
+  try {
 
-  if (result.results.length > 0) {
+    const result = await hubspotClient.crm.contacts.searchApi.doSearch(publicObjectSearchRequest);
 
-    const customerData = result.results[0];
+    if (result.results.length > 0) {
 
-    const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
+      const customerData = result.results[0];
 
-    return {
-      customer_id: customerData.id,
-      display_name: `${customerData.properties.firstname} ${customerData.properties.lastname}`,
-      channels: [
-        { type: 'email', value: customerData.properties.email },
-        { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
-        { type: 'whatsapp', value: customerData.properties.hs_calculated_phone_number }
-      ],
-      details: {
-        title: 'Commercial',
-        content: `${ownerData.firstName} ${ownerData.lastName}`
-      },
-      links: [
-        { type: 'Hubspot', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `Fiche de ${customerData.properties.firstname} ${customerData.properties.lastname}` },
-        { type: 'Commercial', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `${ownerData.firstName} ${ownerData.lastName}` }
-      ],
-      worker: ownerData.email,
-      hs_owner_email: ownerData.email,
-      hs_owner_name: `${ownerData.firstName} ${ownerData.lastName}`,
-      hs_owner_id: customerData.properties.hubspot_owner_id
-    } as IFrontlineCustomer
+      const ownerData = await hubspotClient.crm.owners.ownersApi.getById(Number(customerData.properties.hubspot_owner_id));
 
-  } else {
-    return {} as IFrontlineCustomer
+      return {
+        customer_id: customerData.id,
+        display_name: `${customerData.properties.firstname} ${customerData.properties.lastname}`,
+        channels: [
+          { type: 'email', value: customerData.properties.email },
+          { type: 'sms', value: customerData.properties.hs_calculated_phone_number },
+          { type: 'whatsapp', value: `whatsapp:${customerData.properties.hs_calculated_phone_number}` }
+        ],
+        details: {
+          title: 'Commercial',
+          content: `${ownerData.firstName} ${ownerData.lastName}`
+        },
+        links: [
+          { type: 'Hubspot', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `Fiche de ${customerData.properties.firstname} ${customerData.properties.lastname}` },
+          { type: 'Commercial', value: `https://app-eu1.hubspot.com/contacts/25720060/contact/${customerData.id}`, display_name: `${ownerData.firstName} ${ownerData.lastName}` }
+        ],
+        worker: ownerData.email,
+        hs_owner_email: ownerData.email,
+        hs_owner_name: `${ownerData.firstName} ${ownerData.lastName}`,
+        hs_owner_id: customerData.properties.hubspot_owner_id
+      } as IFrontlineCustomer
+
+    } else {
+      return null
+    }
+
+  } catch (error) {
+    return null
   }
+
+
 };

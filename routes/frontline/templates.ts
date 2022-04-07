@@ -37,7 +37,8 @@ const handleGetTemplatesByCustomerIdCallback = async (req : Request, res : Respo
     const openersCategory = {
         display_name: 'Démarrer une conversation', // Category name
         templates: [
-            { content: compileTemplate(OPENER_NEXT_STEPS, customerDetails) }
+            { content: compileTemplate(OPENER_NEXT_STEPS, customerDetails) },
+            { content : WHATSAPP_MSG, whatsAppApproved: true}
         ]
     };
     const repliesCategory = {
@@ -64,6 +65,7 @@ const compileTemplate = (template : string, customer : IFrontlineCustomer) => {
 };
 
 const OPENER_NEXT_STEPS = 'Bonjour {{Name}} nous avons traité vos documents, vous pouvez me contacter ici. {{Author}}.';
+const WHATSAPP_MSG = 'Thank you for purchasing Pizza! We value your feedback and would like to learn more about your experience.';
 /*const OPENER_NEW_PRODUCT = 'Hello {{Name}} we have a new product out which may be of interest to your business. Drop me a message. {{Author}}.';
 const OPENER_ON_MY_WAY ='Just to confirm I am on my way to your office. {{Name}}.';*/
 

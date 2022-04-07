@@ -4,7 +4,8 @@ import twilioClient from "./providers/twilioClient.js";
 
 const routingCallbackHandler = async (req : Request, res : Response) => {
     const conversationSid = req.body.ConversationSid;
-    const customerNumber = req.body['MessagingBinding.Address'];
+    let customerNumber = req.body['MessagingBinding.Address'];
+    customerNumber = (customerNumber.split(':').length > 1) ? customerNumber.split(':')[1] : customerNumber;
 
     await routeConversation(conversationSid, customerNumber);
     res.sendStatus(200);
