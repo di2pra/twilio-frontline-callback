@@ -4,13 +4,22 @@ import { createServer } from 'http';
 import enforce from 'express-sslify';
 import routes from './routes/index.js';
 import { v4 as uuidv4 } from 'uuid';
+import cors from 'cors';
 
 const app = express();
 const httpServer = createServer(app);
 
 const PORT = process.env.PORT || 80;
 
-if (process.env.NODE_ENV != 'development') {
+if (process.env.NODE_ENV === 'development') {
+
+  let corsOptions = {
+    origin: 'http://localhost:3000',
+    optionsSuccessStatus: 200
+  }
+
+  app.use(cors(corsOptions));
+} else {
   app.use(enforce.HTTPS({ trustProtoHeader: true }));
 }
 

@@ -1,0 +1,27 @@
+$main-color: #F22F46;
+$secondary-color: #001489;
+$primary-color: #0263E0;
+
+
+.navbar-light .navbar-nav .nav-link.active {
+  color: $main-color;
+}
+
+
+.navbar-light .navbar-brand {
+  color: $main-color;
+
+  &:hover {
+    color: $main-color;
+  }
+}
+
+.navbar-logo {
+  width: 30px;
+  height: 30px;
+
+  svg {
+    vertical-align: top;
+  }
+
+}

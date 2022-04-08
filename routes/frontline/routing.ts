@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { findWorkerForCustomer } from "./providers/customers.js";
-import twilioClient from "./providers/twilioClient.js";
+import { findWorkerForCustomer } from "../providers/customers.js";
+import twilioClient from "../providers/twilioClient.js";
 
 const routingCallbackHandler = async (req : Request, res : Response) => {
     const conversationSid = req.body.ConversationSid;

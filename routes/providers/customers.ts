@@ -1,6 +1,7 @@
 import * as hubspot from '@hubspot/api-client';
 import { FilterGroup, PublicObjectSearchRequest } from '@hubspot/api-client/lib/codegen/crm/companies';
 import { FilterOperatorEnum } from '@hubspot/api-client/lib/codegen/crm/companies/models/Filter';
+import { PublicOwner } from '@hubspot/api-client/lib/codegen/crm/owners';
 const hubspotClient = new hubspot.Client({ accessToken: process.env.HUBSPOT_API_KEY })
 
 export type IFrontlineCustomer = {
@@ -206,6 +207,11 @@ export const getCustomerByNumber = async (customerNumber: string): Promise<IFron
   }
 
 };
+
+export const getOwnerByEmail = async (email: string) : Promise<PublicOwner | undefined> => {
+  const ownerList = await hubspotClient.crm.owners.ownersApi.getPage();
+  return ownerList.results.find((item) => item.email === email);
+}
 
 export const getCustomerById = async (customerId: string): Promise<IFrontlineCustomer | null> => {
 

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { getCustomerById, getCustomersList } from "./providers/customers.js";
+import { getCustomerById, getCustomersList } from "../providers/customers.js";
 
 const handleGetCustomerDetailsByCustomerIdCallback = async (req: Request, res: Response) => {
   const body = req.body;

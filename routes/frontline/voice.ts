@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { getCustomerByNumber } from "./providers/customers.js";
+import { getCustomerByNumber } from "../providers/customers.js";
 import fetch from 'node-fetch';
-import twilioClient from "./providers/twilioClient.js";
+import twilioClient from "../providers/twilioClient.js";
 
 export const incomingVoiceCallbackHandler = async (req: Request, res: Response) => {
 
