@@ -93,8 +93,6 @@ export default function Home() {
                                 return `<code>${t1}</code>`
                               });
 
-                              console.log(newContent)
-
                               return (
                                 <tr key={index}>
                                   <td><div dangerouslySetInnerHTML={{ __html: sanitizeHtml(newContent) }} /></td>

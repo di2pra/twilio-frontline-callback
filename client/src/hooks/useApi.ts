@@ -2,8 +2,6 @@ import { useOktaAuth } from '@okta/okta-react';
 import { useCallback } from 'react';
 import { ITemplateCategory } from '../Types';
 
-const API_HOSTNAME = process.env.REACT_APP_API_HOSTNAME || '';
-
 function useApi() {
 
   const { authState } = useOktaAuth();
@@ -48,7 +46,7 @@ function useApi() {
 
   const addTemplate = useCallback(async ({ category_id, content, whatsAppApproved }) => {
 
-    const result = await postWithAuth(`${API_HOSTNAME}/api/v1/template`, {
+    const result = await postWithAuth(`/api/v1/template`, {
       category_id: category_id,
       content: content,
       whatsAppApproved: whatsAppApproved
@@ -68,7 +66,7 @@ function useApi() {
 
   const deleteTemplate = useCallback(async (id) => {
 
-    const result = await fetchWithAuth(`${API_HOSTNAME}/api/v1/template/${id}`, {
+    const result = await fetchWithAuth(`/api/v1/template/${id}`, {
       method: "DELETE"
     });
 
@@ -86,7 +84,7 @@ function useApi() {
 
   const getTemplate : () => Promise<ITemplateCategory[]> = useCallback(async () => {
 
-    const result = await fetchWithAuth(`${API_HOSTNAME}/api/v1/template`);
+    const result = await fetchWithAuth(`/api/v1/template`);
     const data = await result.json();
 
     if (result.ok) {

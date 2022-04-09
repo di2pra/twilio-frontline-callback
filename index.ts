@@ -13,12 +13,12 @@ const PORT = process.env.PORT || 80;
 
 if (process.env.NODE_ENV === 'development') {
 
-  let corsOptions = {
+  /*let corsOptions = {
     origin: 'http://localhost:3000',
     optionsSuccessStatus: 200
   }
 
-  app.use(cors(corsOptions));
+  app.use(cors(corsOptions));*/
 } else {
   app.use(enforce.HTTPS({ trustProtoHeader: true }));
 }
@@ -29,7 +29,7 @@ app.use(express.urlencoded({
   extended: false
 }));
 
-const requestFilter = (req: Request, res: Response, next: NextFunction) => {
+/*const requestFilter = (req: Request, res: Response, next: NextFunction) => {
   res.locals.log = logWithRequestData(req.method, req.path, uuidv4());
   next();
 };
@@ -38,7 +38,7 @@ const logWithRequestData = (method: string, path: string, id: string) => (...mes
   console.log(`[${method}][${path}][${id}]`, ...message);
 };
 
-app.use(requestFilter);
+app.use(requestFilter);*/
 
 if (process.env.NODE_ENV != 'development') {
   app.use(twilio.webhook({protocol: 'https'}));
