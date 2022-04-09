@@ -66,7 +66,7 @@ const compileTemplate = (template : string, customer : IFrontlineCustomer) => {
     compiledTemplate = compiledTemplate.replace(/{{customerFirstname}}/, customer.firstname);
     compiledTemplate = compiledTemplate.replace(/{{agentFirstname}}/, customer.hs_owner_firstname);
     compiledTemplate = compiledTemplate.replace(/{{agentLastname}}/, customer.hs_owner_lastname);
-    compiledTemplate = compiledTemplate.replace(/{{companyName}}/, "MACSF");
+    compiledTemplate = compiledTemplate.replace(/{{companyName}}/, "Twilio");
     return compiledTemplate;
 };
 
