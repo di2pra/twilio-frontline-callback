@@ -1,25 +1,18 @@
-import express, { NextFunction, Request, Response } from 'express';
-import twilio from 'twilio';
+import express from 'express';
 import { createServer } from 'http';
 import enforce from 'express-sslify';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import routes from './routes/index.js';
-import { v4 as uuidv4 } from 'uuid';
-import cors from 'cors';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const httpServer = createServer(app);
 
 const PORT = process.env.PORT || 80;
 
-if (process.env.NODE_ENV === 'development') {
-
-  /*let corsOptions = {
-    origin: 'http://localhost:3000',
-    optionsSuccessStatus: 200
-  }
-
-  app.use(cors(corsOptions));*/
-} else {
+if (process.env.NODE_ENV != 'development') {
   app.use(enforce.HTTPS({ trustProtoHeader: true }));
 }
 
@@ -40,15 +33,17 @@ const logWithRequestData = (method: string, path: string, id: string) => (...mes
 
 app.use(requestFilter);*/
 
-if (process.env.NODE_ENV != 'development') {
-  app.use(twilio.webhook({protocol: 'https'}));
-}
+routes(app);
 
-app.get('/', (req : Request, res : Response) => {
-  res.send('Twilio Webhook is running!')
+app.get('/index.html', (_, res) => {
+  res.redirect('/');
 });
 
-routes(app);
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/*', (_, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 httpServer.listen(PORT, () => {
   console.info(`Application started at ${PORT}`)

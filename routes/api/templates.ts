@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../../helpers.js";
 import { sqliteDb } from "../providers/sqlite.js";
 
-export const getTemplateHandler = async (req: Request, res: Response) => {
+export const getTemplateHandler = async (_: Request, res: Response) => {
 
   const categories = sqliteDb.prepare('SELECT * FROM category').all();
 
@@ -54,8 +54,6 @@ export const deleteTemplateHandler = async (req: Request, res: Response, next: N
 
   try {
 
-    console.log(req.params);
-
     if (!req.params.id) {
       throw new ErrorHandler(400, 'Bad Request');
     }
@@ -63,8 +61,6 @@ export const deleteTemplateHandler = async (req: Request, res: Response, next: N
     const deleteStatement = sqliteDb.prepare('DELETE FROM template WHERE id = ?');
 
     const result = deleteStatement.run(req.params.id);
-
-    console.log(result);
 
     res.status(204).json(null);
 

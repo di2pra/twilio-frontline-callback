@@ -4,9 +4,14 @@ import outgoingConversationCallbackHandler from './outgoing-conversation.js';
 import routingCallbackHandler from './routing.js';
 import templatesCallbackHandler from './templates.js';
 import conversationsCallbackHandler from './twilio-conversations.js';
+import twilio from 'twilio';
 import { incomingVoiceActionHandler, incomingVoiceCallbackHandler, incomingVoiceStatusCallbackHandler, outgoingVoiceStatusCallbackHandler } from './voice.js';
 
 export default (router: Express) => {
+
+  if (process.env.NODE_ENV != 'development') {
+    router.use('/frontline', twilio.webhook({protocol: 'https'}));
+  }
 
   router.post("/frontline/callbacks/conversations", conversationsCallbackHandler);
   router.post("/frontline/callbacks/routing", routingCallbackHandler);

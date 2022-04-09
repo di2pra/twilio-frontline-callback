@@ -15,26 +15,28 @@ export default class OktaController {
     });
   }
 
-  authenticationRequired = async (request : Request, response : Response, next : NextFunction) => {
-    const authHeader = request.headers.authorization || '';
-    const match = authHeader.match(/Bearer (.+)/);
-  
-    if (!match) {
-      throw new ErrorHandler(401, 'Unauthorized');
-    }
-  
-    const accessToken = match[1];
-    const audience = oktaConfig.resourceServer.assertClaims.aud;
-  
+  authenticationRequired = async (request: Request, response: Response, next: NextFunction) => {
+
     try {
+
+      const authHeader = request.headers.authorization || '';
+      const match = authHeader.match(/Bearer (.+)/);
+
+      if (!match) {
+        throw new ErrorHandler(401, 'Unauthorized');
+      }
+
+      const accessToken = match[1];
+      const audience = oktaConfig.resourceServer.assertClaims.aud;
+
       const jwt = await this.oktaJwtVerifier.verifyAccessToken(accessToken, audience);
-  
+
       response.locals.jwt = jwt;
-  
+
       next();
-  
-    } catch (error : any) {
-      throw new ErrorHandler(500, error.message);
+
+    } catch (error) {
+      next(error)
     }
   }
 
