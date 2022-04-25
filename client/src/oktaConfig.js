@@ -21,9 +21,12 @@ const oktaConfig = {
     clientId: CLIENT_ID,
     issuer: ISSUER,
     redirectUri: REDIRECT_URI,
-    scopes: ['openid', 'profile', 'email'],
+    scopes: ['openid', 'profile', 'email', 'offline_access'],
     pkce: true,
     disableHttpsCheck: OKTA_TESTING_DISABLEHTTPSCHECK
+  },
+  services: {
+    autoRenew: true
   },
   resourceServer: {
     messagesUrl: 'http://localhost:8000/api/messages'

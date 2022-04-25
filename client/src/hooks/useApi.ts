@@ -44,12 +44,12 @@ function useApi() {
 
   }, [fetchWithAuth]);
 
-  const addTemplate = useCallback(async ({ category_id, content, whatsAppApproved }) => {
+  const addTemplate = useCallback(async ({ category_id, content, whatsapp_approved }) => {
 
     const result = await postWithAuth(`/api/v1/template`, {
       category_id: category_id,
       content: content,
-      whatsAppApproved: whatsAppApproved
+      whatsapp_approved: whatsapp_approved
     });
 
     const data = await result.json();

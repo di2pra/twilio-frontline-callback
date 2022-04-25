@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Home from './routes/Home';
 import NotFound from './routes/NotFound';
@@ -14,6 +14,15 @@ export default function App() {
   let navigate = useNavigate();
 
   const oktaAuth = new OktaAuth(oktaConfig.oidc);
+
+  useEffect(() => {
+    oktaAuth.start(); // start the service
+
+    return () => {
+      oktaAuth.stop(); // stop the service
+    }
+    
+  })
 
   const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
 

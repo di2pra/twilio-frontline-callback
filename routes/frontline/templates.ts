@@ -1,7 +1,9 @@
 import { PublicOwner } from "@hubspot/api-client/lib/codegen/crm/owners";
 import { Request, Response } from "express";
+import Category from "../api/models/category.js";
+import Template from "../api/models/template.js";
 import { getCustomerById, getOwnerByEmail, IFrontlineCustomer } from "../providers/customers.js";
-import { sqliteDb } from "../providers/sqlite.js";
+import { pgClient } from "../providers/postgres.js";
 
 const templatesCallbackHandler = async (req: Request, res: Response) => {
     const location = req.body.Location;
@@ -40,9 +42,13 @@ const handleGetTemplatesByCustomerIdCallback = async (req: Request, res: Respons
         return res.status(404).send("Worker not found");
     }
 
-    const categories = sqliteDb.prepare('SELECT * FROM category').all();
+    const reqCategories = await pgClient.query('SELECT * FROM category');
 
-    const templates = sqliteDb.prepare('SELECT * FROM template').all();
+    const categories = await Category.getAll();
+  
+    const reqTemplates = await pgClient.query('SELECT * FROM template');
+
+    const templates = await Template.getAll();
 
     const data = categories.map(category => {
         return {

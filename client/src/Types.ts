@@ -7,7 +7,7 @@ export interface ITemplate {
   id: number;
   category_id: number;
   content: string;
-  whatsAppApproved: boolean;
+  whatsapp_approved: boolean;
 }
 
 export interface ITemplateCategory {
