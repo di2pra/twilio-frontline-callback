@@ -1,11 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../../helpers.js";
-import { sqliteDb } from "../providers/sqlite.js";
-import { pgClient } from "../providers/postgres.js";
 import Category from "./models/category.js";
 import Template from "./models/template.js";
-import { nextTick } from "process";
-
 
 export default class TemplateController {
 
