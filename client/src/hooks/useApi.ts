@@ -1,6 +1,6 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { useCallback } from 'react';
-import { ITemplateCategory } from '../Types';
+import { IConfiguration, ITemplateCategory } from '../Types';
 
 function useApi() {
 
@@ -97,11 +97,25 @@ function useApi() {
 
   }, [fetchWithAuth]);
 
+  const getConfiguration : () => Promise<IConfiguration> = useCallback(async () => {
+
+    const result = await fetchWithAuth(`/api/v1/configuration`);
+    const data = await result.json();
+
+    if (result.ok) {
+      return data as IConfiguration;
+    } else {
+      throw new Error(data.message);
+    }
+
+  }, [fetchWithAuth]);
+
 
   return {
     getTemplate,
     addTemplate,
-    deleteTemplate
+    deleteTemplate,
+    getConfiguration
   };
 }
 

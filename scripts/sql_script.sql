@@ -10,3 +10,11 @@ CREATE TABLE "template" (
 	"whatsapp_approved" BOOLEAN,
 	"is_deleted" BOOLEAN
 );
+
+
+CREATE TABLE "configuration" (
+	"id" serial PRIMARY KEY,
+	"info"	json NOT NULL,
+	"updated_on" timestamptz NOT NULL,
+	"updated_by" VARCHAR(255) NOT NULL
+);

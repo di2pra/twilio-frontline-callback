@@ -15,3 +15,14 @@ export interface ITemplateCategory {
   display_name: string;
   templates: ITemplate[];
 }
+
+export interface IConfigurationInfo {
+  companyNameShort: string;
+  companyNameLong: string;
+}
+
+export interface IConfiguration {
+  id: number;
+  info: IConfigurationInfo;
+  updated_by: string;
+}

@@ -1,7 +1,7 @@
 import OktaJwtVerifier from "@okta/jwt-verifier";
 import { NextFunction, Request, Response } from "express";
-import { ErrorHandler } from "../../helpers.js";
-import oktaConfig from "../../oktaConfig.js";
+import { ErrorHandler } from "../../../helpers.js";
+import oktaConfig from "../../../oktaConfig.js";
 
 export default class OktaController {
 

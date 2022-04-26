@@ -1,9 +1,9 @@
 import { PublicOwner } from "@hubspot/api-client/lib/codegen/crm/owners";
 import { Request, Response } from "express";
 import Category from "../api/models/category.js";
+import Configuration, { IConfiguration } from "../api/models/configuration.js";
 import Template from "../api/models/template.js";
 import { getCustomerById, getOwnerByEmail, IFrontlineCustomer } from "../providers/customers.js";
-import { pgClient } from "../providers/postgres.js";
 
 const templatesCallbackHandler = async (req: Request, res: Response) => {
     const location = req.body.Location;
@@ -42,20 +42,16 @@ const handleGetTemplatesByCustomerIdCallback = async (req: Request, res: Respons
         return res.status(404).send("Worker not found");
     }
 
-    const reqCategories = await pgClient.query('SELECT * FROM category');
-
     const categories = await Category.getAll();
-  
-    const reqTemplates = await pgClient.query('SELECT * FROM template');
-
     const templates = await Template.getAll();
+    const configuration = await Configuration.get();
 
     const data = categories.map(category => {
         return {
             display_name: category.display_name,
             templates: templates.filter(item => item.category_id === category.id).map(item => {
                 return {
-                    content: compileTemplate(item.content, customerDetails, workerDetails),
+                    content: compileTemplate(item.content, customerDetails, workerDetails, configuration),
                     whatsAppApproved: item.whatsAppApproved === 0 ? false : true
                 }
             })
@@ -66,13 +62,14 @@ const handleGetTemplatesByCustomerIdCallback = async (req: Request, res: Respons
     res.send(data);
 };
 
-const compileTemplate = (template: string, customer: IFrontlineCustomer, workerDetails: PublicOwner): string => {
+const compileTemplate = (template: string, customer: IFrontlineCustomer, workerDetails: PublicOwner, configuration : IConfiguration): string => {
+
     let compiledTemplate = template.replace(/{{customerFirstname}}/, customer.firstname);
     compiledTemplate = compiledTemplate.replace(/{{customerLastname}}/, customer.lastname);
     compiledTemplate = compiledTemplate.replace(/{{agentFirstname}}/, workerDetails.firstName || '');
     compiledTemplate = compiledTemplate.replace(/{{agentLastname}}/, workerDetails.lastName || '');
-    compiledTemplate = compiledTemplate.replace(/{{companyNameLong}}/, "Macsf");
-    compiledTemplate = compiledTemplate.replace(/{{companyNameShort}}/, "Macsf");
+    compiledTemplate = compiledTemplate.replace(/{{companyNameLong}}/, configuration.info.companyNameLong);
+    compiledTemplate = compiledTemplate.replace(/{{companyNameShort}}/, configuration.info.companyNameShort);
     return compiledTemplate;
 };
 

@@ -1,13 +1,21 @@
 import { useOktaAuth } from "@okta/okta-react";
 import { useEffect } from "react";
 import { Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const Logout = () => {
 
   const { oktaAuth } = useOktaAuth();
 
+  let navigate = useNavigate();
+
   useEffect(() => {
-    oktaAuth.signOut();
+    oktaAuth.revokeAccessToken().then(() => {
+
+      navigate('/');
+
+    });
+
   });
 
   return (
