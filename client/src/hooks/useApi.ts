@@ -1,6 +1,6 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { useCallback } from 'react';
-import { IConfiguration, ITemplateCategory } from '../Types';
+import { IClaim, IConfiguration, IConfigurationInfo, ITemplateCategory } from '../Types';
 
 function useApi() {
 
@@ -44,6 +44,21 @@ function useApi() {
 
   }, [fetchWithAuth]);
 
+  const putWithAuth = useCallback(async (input: RequestInfo, body: object) => {
+
+    const init = {
+      method: "PUT",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }
+
+    return fetchWithAuth(input, init)
+
+  }, [fetchWithAuth]);
+
   const addTemplate = useCallback(async ({ category_id, content, whatsapp_approved }) => {
 
     const result = await postWithAuth(`/api/v1/template`, {
@@ -73,7 +88,7 @@ function useApi() {
     const data = await result.json();
 
     if (result.ok) {
-      return data;
+      return null;
     } else {
       throw new Error(data.message);
     }
@@ -110,12 +125,70 @@ function useApi() {
 
   }, [fetchWithAuth]);
 
+  const addConfiguration = useCallback(async (info: IConfigurationInfo) => {
+
+    const result = await postWithAuth(`/api/v1/configuration`, {info});
+
+    const data = await result.json();
+
+    if (result.ok) {
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+
+  }, [postWithAuth]);
+
+  const getClaim : () => Promise<IClaim | null> = useCallback(async () => {
+
+    const result = await fetchWithAuth(`/api/v1/claim`);
+    const data = await result.json();
+
+    if (result.ok) {
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+
+  }, [fetchWithAuth]);
+
+  const addClaim : () => Promise<IClaim | null> = useCallback(async () => {
+
+    const result = await postWithAuth(`/api/v1/claim`, {});
+
+    const data = await result.json();
+
+    if (result.ok) {
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+
+  }, [postWithAuth]);
+
+  const closeClaim : (id: number) => Promise<IClaim | null> = useCallback(async (id: number) => {
+
+    const result = await putWithAuth(`/api/v1/claim/${id}`, {});
+
+    const data = await result.json();
+
+    if (result.ok) {
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+
+  }, [putWithAuth]);
 
   return {
     getTemplate,
     addTemplate,
     deleteTemplate,
-    getConfiguration
+    getConfiguration,
+    addConfiguration,
+    getClaim,
+    addClaim,
+    closeClaim
   };
 }
 

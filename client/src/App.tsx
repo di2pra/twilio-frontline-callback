@@ -8,6 +8,7 @@ import { Security, LoginCallback } from '@okta/okta-react';
 import Login from './routes/Login';
 import Logout from './routes/Logout';
 import SecureLayout from './SecureLayout';
+import ClaimProvider from './providers/ClaimProvider';
 
 export default function App() {
 
@@ -21,7 +22,7 @@ export default function App() {
     return () => {
       oktaAuth.stop(); // stop the service
     }
-    
+
   })
 
   const restoreOriginalUri = async (_oktaAuth: any, originalUri: string) => {
@@ -36,7 +37,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/" element={<SecureLayout />}>
-          <Route index element={<Home />} />
+          <Route index element={<ClaimProvider><Home /></ClaimProvider>} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

@@ -2,17 +2,34 @@ import { Request, Response } from "express";
 import { getCustomerByNumber } from "../providers/customers.js";
 import fetch from 'node-fetch';
 import twilioClient from "../providers/twilioClient.js";
+import Configuration from "../api/models/configuration.js";
 
 export const incomingVoiceCallbackHandler = async (req: Request, res: Response) => {
 
   const from = req.body.From;
 
   const customerDetails = await getCustomerByNumber(from);
+  const configuration = await Configuration.get();
 
-  let responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >Bonjour, bienvenue chez Mutuelle d'assurances du corps de santé français.</Say><Say voice="Polly.Lea" language="fr-FR" >Je vous redirige vers le premier conseiller disponible de notre centre d'appel.</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
+  let UNKNOWN_CUSTOMER_INTRO = `Bonjour, bienvenue chez Twilio. Je vous redirige vers le premier conseiller disponible de notre centre d'appel.`;
+
+  if(configuration) {
+    UNKNOWN_CUSTOMER_INTRO = configuration.info.welcomeUnknownContact.replace(/{{companyNameLong}}/, configuration.info.companyNameLong);
+    UNKNOWN_CUSTOMER_INTRO = UNKNOWN_CUSTOMER_INTRO.replace(/{{companyNameShort}}/, configuration.info.companyNameShort);
+  }
+
+  let responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >${UNKNOWN_CUSTOMER_INTRO}</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
 
   if (customerDetails) {
-    responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >Bonjour, bienvenue chez Mutuelle d'assurances du corps de santé français, je vous mets en relation avec votre conseiller.</Say><Connect action="https://${req.hostname}/frontline/callback/voiceAction"><Conversation serviceInstanceSid="ISa442c5ab66fc4935b3270d3b04c2f7bf" inboundTimeout="20"/></Connect></Response>`;
+
+    let KNOWN_CUSTOMER_INTO = `Bonjour, bienvenue chez Twilio, je vous mets en relation avec votre conseiller.`;
+
+    if(configuration) {
+      KNOWN_CUSTOMER_INTO = configuration.info.welcomeKnownContact.replace(/{{companyNameLong}}/, configuration.info.companyNameLong);
+      KNOWN_CUSTOMER_INTO = KNOWN_CUSTOMER_INTO.replace(/{{companyNameShort}}/, configuration.info.companyNameShort);
+    }
+
+    responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >${KNOWN_CUSTOMER_INTO}</Say><Connect action="https://${req.hostname}/frontline/callback/voiceAction"><Conversation serviceInstanceSid="ISa442c5ab66fc4935b3270d3b04c2f7bf" inboundTimeout="20"/></Connect></Response>`;
   }
 
   res.setHeader('Content-Type', 'text/xml').status(200).send(responseBody);
@@ -24,10 +41,29 @@ export const incomingVoiceActionHandler = async (req: Request, res: Response) =>
   let responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>`;
 
 
+  const configuration = await Configuration.get();
+
+
   if (req.body.Result === "dialed-call-incomplete") {
-    responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >Votre conseiller est occupé, je vous redirige vers le centre d'appel</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
+
+    let AGENT_IS_BUSY_ANSWER = `Votre conseiller est occupé, je vous redirige vers le centre d'appel`;
+
+    if(configuration) {
+      AGENT_IS_BUSY_ANSWER = configuration.info.agentBusyAnswer.replace(/{{companyNameLong}}/, configuration.info.companyNameLong);
+      AGENT_IS_BUSY_ANSWER = AGENT_IS_BUSY_ANSWER.replace(/{{companyNameShort}}/, configuration.info.companyNameShort);
+    }
+
+    responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >${AGENT_IS_BUSY_ANSWER}</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
   } else if (req.body.Result === "no-other-participants" || req.body.Result === "internal-error") {
-    responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >Je vous redirige vers le premier conseiller disponible de notre centre d'appel.</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
+
+    let AGENT_NOT_FOUND_ANSWER = `Je vous redirige vers le premier conseiller disponible de notre centre d'appel.`;
+
+    if(configuration) {
+      AGENT_NOT_FOUND_ANSWER = configuration.info.agentNotFoundAnswer.replace(/{{companyNameLong}}/, configuration.info.companyNameLong);
+      AGENT_NOT_FOUND_ANSWER = AGENT_NOT_FOUND_ANSWER.replace(/{{companyNameShort}}/, configuration.info.companyNameShort);
+    }
+
+    responseBody = `<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Polly.Lea" language="fr-FR" >${AGENT_NOT_FOUND_ANSWER}</Say><Dial>${process.env.FRONTLINE_CC_NUMBER}</Dial></Response>`;
   }
 
   res.setHeader('Content-Type', 'text/xml').status(200).send(responseBody);

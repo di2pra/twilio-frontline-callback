@@ -62,14 +62,18 @@ const handleGetTemplatesByCustomerIdCallback = async (req: Request, res: Respons
     res.send(data);
 };
 
-const compileTemplate = (template: string, customer: IFrontlineCustomer, workerDetails: PublicOwner, configuration : IConfiguration): string => {
+const compileTemplate = (template: string, customer: IFrontlineCustomer, workerDetails: PublicOwner, configuration: IConfiguration | null): string => {
 
     let compiledTemplate = template.replace(/{{customerFirstname}}/, customer.firstname);
     compiledTemplate = compiledTemplate.replace(/{{customerLastname}}/, customer.lastname);
     compiledTemplate = compiledTemplate.replace(/{{agentFirstname}}/, workerDetails.firstName || '');
     compiledTemplate = compiledTemplate.replace(/{{agentLastname}}/, workerDetails.lastName || '');
-    compiledTemplate = compiledTemplate.replace(/{{companyNameLong}}/, configuration.info.companyNameLong);
-    compiledTemplate = compiledTemplate.replace(/{{companyNameShort}}/, configuration.info.companyNameShort);
+    
+    if (configuration) {
+        compiledTemplate = compiledTemplate.replace(/{{companyNameLong}}/, configuration.info.companyNameLong);
+        compiledTemplate = compiledTemplate.replace(/{{companyNameShort}}/, configuration.info.companyNameShort);
+    }
+
     return compiledTemplate;
 };
 

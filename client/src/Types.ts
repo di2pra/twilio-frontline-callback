@@ -19,10 +19,20 @@ export interface ITemplateCategory {
 export interface IConfigurationInfo {
   companyNameShort: string;
   companyNameLong: string;
+  welcomeKnownContact: string;
+  welcomeUnknownContact: string;
+  agentBusyAnswer: string;
+  agentNotFoundAnswer: string;
 }
 
 export interface IConfiguration {
   id: number;
   info: IConfigurationInfo;
   updated_by: string;
+}
+export interface IClaim {
+  id: number;
+  user: string;
+  started_at: Date;
+  ended_at: Date;
 }

@@ -18,3 +18,10 @@ CREATE TABLE "configuration" (
 	"updated_on" timestamptz NOT NULL,
 	"updated_by" VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE "claim" (
+	"id" serial PRIMARY KEY,
+	"user"	VARCHAR(255) NOT NULL,
+	"started_at" timestamptz NOT NULL,
+	"ended_at" timestamptz NULL
+);

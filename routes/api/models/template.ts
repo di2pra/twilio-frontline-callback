@@ -8,7 +8,7 @@ export default class Template {
 
     try {
 
-      const request = await pgClient.query('SELECT * FROM template WHERE is_deleted is FALSE');
+      const request = await pgClient.query('SELECT * FROM template WHERE is_deleted is FALSE ORDER BY id ASC');
       return request.rows;
 
     } catch (error) {

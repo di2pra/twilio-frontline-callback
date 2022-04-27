@@ -28,7 +28,7 @@ export default class ConfigurationController {
         throw new ErrorHandler(400, 'Bad Request');
       }
 
-      const newConfiguration = await Configuration.add(req.body.info, "prajendirane@twilio.com");
+      const newConfiguration = await Configuration.add(req.body.info, res.locals.jwt.claims.sub);
 
       res.status(200).json(newConfiguration);
 
