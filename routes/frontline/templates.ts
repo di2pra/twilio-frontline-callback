@@ -52,7 +52,7 @@ const handleGetTemplatesByCustomerIdCallback = async (req: Request, res: Respons
             templates: templates.filter(item => item.category_id === category.id).map(item => {
                 return {
                     content: compileTemplate(item.content, customerDetails, workerDetails, configuration),
-                    whatsAppApproved: item.whatsapp_approved === 0 ? false : true
+                    whatsAppApproved: item.whatsapp_approved
                 }
             })
         }

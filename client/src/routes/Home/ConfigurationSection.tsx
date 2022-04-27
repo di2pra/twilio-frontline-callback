@@ -214,7 +214,7 @@ const ConfigurationSection = () => {
             <p className="mb-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(addCodeTag(String(configuration?.info.agentNotFoundAnswer))) }} />
           </Alert>
           {
-            (claim != null && (claim.user === loggedInUser?.email)) ? <Button variant="warning" onClick={handleAddBtn} >Modifier</Button> : null
+            (claim != null && claim.ended_at === null && (claim.user === loggedInUser?.email)) ? <Button variant="warning" onClick={handleAddBtn} >Modifier</Button> : null
           }
         </Card.Body>
       </Card>
