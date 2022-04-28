@@ -1,4 +1,3 @@
-import { channel } from "diagnostics_channel";
 import { Request, Response } from "express";
 
 const outgoingConversationCallbackHandler = (req: Request, res: Response) => {

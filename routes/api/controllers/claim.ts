@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { nextTick } from "process";
 import { ErrorHandler } from "../../../helpers.js";
 import Claim from "../models/claim.js";
 
@@ -45,12 +46,6 @@ export default class ClaimController {
         throw new ErrorHandler(400, 'Bad Request');
       }
 
-      const currentClaim = await Claim.getById(Number(req.params.id));
-
-      if(currentClaim?.user != res.locals.jwt.claims.sub) {
-        throw new ErrorHandler(500, 'Unauthorized');
-      }
-
       const claim = Claim.close(Number(req.params.id));
 
       res.status(200).json(claim);
@@ -60,5 +55,22 @@ export default class ClaimController {
     }
 
   };
+
+  validateClaim = async (_: Request, res: Response, next: NextFunction) => {
+
+    try {
+
+      const claim = await Claim.get();
+
+      if (claim != null && claim.ended_at === null && (claim.user === res.locals.jwt.claims.sub)) {
+        next()
+      } else {
+        throw new ErrorHandler(500, 'Unauthorized');
+      }
+    } catch (error) {
+      next(error)
+    }
+
+  }
 
 }

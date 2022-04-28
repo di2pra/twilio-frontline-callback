@@ -7,13 +7,6 @@ import ClaimController from './controllers/claim.js';
 
 export default (router: Express) => {
 
-  const pgClient = new pg.Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  });
-
   const oktaController = new OktaController();
   const templateController = new TemplateController();
   const configurationController = new ConfigurationController();
@@ -23,14 +16,14 @@ export default (router: Express) => {
   router.use('/api', oktaController.authenticationRequired);
 
   router.get("/api/v1/template", templateController.get);
-  router.post("/api/v1/template", templateController.add);
-  router.delete("/api/v1/template/:id", templateController.delete);
+  router.post("/api/v1/template", claimController.validateClaim, templateController.add);
+  router.delete("/api/v1/template/:id", claimController.validateClaim, templateController.delete);
 
   router.get("/api/v1/configuration", configurationController.get);
-  router.post("/api/v1/configuration", configurationController.add);
+  router.post("/api/v1/configuration", claimController.validateClaim, configurationController.add);
 
   router.get("/api/v1/claim", claimController.get);
   router.post("/api/v1/claim", claimController.add);
-  router.put("/api/v1/claim/:id", claimController.close);
+  router.put("/api/v1/claim/:id", claimController.validateClaim, claimController.close);
 
 };
