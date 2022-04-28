@@ -6,12 +6,16 @@ import { ITemplateCategory } from "../../../Types";
 import TemplateRow from "./TemplateRow";
 
 const stateSchema: FormSchema = {
+  id: { value: null, errorMessage: '', isInvalid: false },
   category_id: { value: null, errorMessage: '', isInvalid: false },
   content: { value: '', errorMessage: '', isInvalid: false },
   whatsapp_approved: { value: null, errorMessage: '', isInvalid: false }
 };
 
 const validationStateSchema = {
+  id: {
+    required: false
+  },
   category_id: {
     required: true
   },
@@ -26,26 +30,25 @@ const validationStateSchema = {
 
 const TemplateSection = () => {
 
-  const { getTemplate, deleteTemplate, addTemplate } = useApi();
+  const { getTemplate, deleteTemplate, addTemplate, updateTemplate } = useApi();
 
   const [templates, setTemplates] = useState<ITemplateCategory[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [displayModal, setDisplayModal] = useState<boolean>(false);
-  const [selectedCategory, setSelectedCategory] = useState<ITemplateCategory | null>(null);
 
   const [initState, setInitState] = useState<FormSchema>(stateSchema);
   const { state, handleOnChange, handleOnSubmit } = useForm(initState, validationStateSchema);
 
   const loadTemplate = useCallback((spinner: boolean) => {
 
-    if(spinner) {
+    if (spinner) {
       setIsLoading(true);
     }
 
     getTemplate().then(data => {
       setTemplates(data);
 
-      if(spinner) {
+      if (spinner) {
         setIsLoading(false);
       }
     });
@@ -53,7 +56,7 @@ const TemplateSection = () => {
 
   useEffect(() => {
     loadTemplate(true);
-  }, []);
+  }, [loadTemplate]);
 
   const deleteTemplateById = useCallback((id: number) => {
 
@@ -68,30 +71,58 @@ const TemplateSection = () => {
 
   }, [deleteTemplate, getTemplate]);
 
-  const handleAddBtn = (category: ITemplateCategory) => {
-    setSelectedCategory(category);
-    setInitState({ ...stateSchema, ...{ 
-      category_id: { value: category.id, errorMessage: '', isInvalid: false },
-      whatsapp_approved: { value: false, errorMessage: '', isInvalid: false }
-    } })
+  const handleAddBtn = (category_id: number) => {
+    setInitState({
+      ...stateSchema, ...{
+        category_id: { value: category_id, errorMessage: '', isInvalid: false },
+        whatsapp_approved: { value: false, errorMessage: '', isInvalid: false }
+      }
+    })
+    setDisplayModal(true);
+  };
+
+  const handleEditBtn = ({ id, category_id, content, whatsapp_approved }: { id: number, category_id: number, content: string, whatsapp_approved: boolean }) => {
+    setInitState({
+      ...stateSchema, ...{
+        id: { value: id, errorMessage: '', isInvalid: false },
+        category_id: { value: category_id, errorMessage: '', isInvalid: false },
+        content: { value: content, errorMessage: '', isInvalid: false },
+        whatsapp_approved: { value: whatsapp_approved, errorMessage: '', isInvalid: false }
+      }
+    });
     setDisplayModal(true);
   };
 
   const handleClose = () => {
-    setSelectedCategory(null);
     setDisplayModal(false);
   };
 
   const processAddTemplate = useCallback((state: FormSchema) => {
-    addTemplate({
-      category_id: state.category_id.value,
-      content: state.content.value,
-      whatsapp_approved: state.whatsapp_approved.value
-    }).then((value) => {
-      handleClose();
-      loadTemplate(false);
-    })
-  }, []);
+
+    if (state.id.value === null) {
+      addTemplate({
+        category_id: state.category_id.value,
+        content: state.content.value,
+        whatsapp_approved: state.whatsapp_approved.value
+      }).then((value) => {
+        handleClose();
+        loadTemplate(false);
+        setInitState(stateSchema);
+      });
+    } else {
+      updateTemplate(state.id.value, {
+        category_id: state.category_id.value,
+        content: state.content.value,
+        whatsapp_approved: state.whatsapp_approved.value
+      }).then((value) => {
+        handleClose();
+        loadTemplate(false);
+        setInitState(stateSchema);
+      });
+    }
+
+
+  }, [addTemplate, updateTemplate, loadTemplate]);
 
   if (isLoading) {
     return (
@@ -111,7 +142,7 @@ const TemplateSection = () => {
     <>
       <Modal size="lg" centered backdrop="static" show={displayModal} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Ajouter un nouveau template dans "{selectedCategory?.display_name}"</Modal.Title>
+          <Modal.Title>Ajouter un nouveau template</Modal.Title>
         </Modal.Header>
         <Form onSubmit={(e) => { handleOnSubmit(e, processAddTemplate) }}>
           <Modal.Body>
@@ -161,7 +192,7 @@ const TemplateSection = () => {
         <Card.Body>
           {
             templates.map((category, catIndex) => {
-              return <TemplateRow key={catIndex} deleteTemplateById={deleteTemplateById} category={category} handleAddBtn={handleAddBtn} />
+              return <TemplateRow key={catIndex} deleteTemplateById={deleteTemplateById} category={category} handleAddBtn={handleAddBtn} handleEditBtn={handleEditBtn} />
             })
           }
         </Card.Body>

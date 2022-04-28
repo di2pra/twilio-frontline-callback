@@ -7,8 +7,8 @@ export default class Category {
     try {
       const request = await pgClient.query('SELECT * FROM category');
       return request.rows;
-    } catch (error) {
-      throw new ErrorHandler(500, 'Internal DB Error')
+    } catch (error: any) {
+      throw new ErrorHandler(500, `Internal DB Error : ${error.message}`)
     }
   };
 

@@ -47,6 +47,24 @@ export default class TemplateController {
 
   };
 
+  update = async (req: Request, res: Response, next: NextFunction) => {
+
+    try {
+
+      if (!req.params.id || typeof req.body.category_id === "undefined" || typeof req.body.content === "undefined" || typeof req.body.whatsapp_approved === "undefined") {
+        throw new ErrorHandler(400, 'Bad Request');
+      }
+
+      const updatedTemplate = await Template.update(Number(req.params.id), req.body);
+
+      res.status(200).json(updatedTemplate);
+
+    } catch (error) {
+      next(error)
+    }
+
+  };
+
 
   delete = async (req: Request, res: Response, next: NextFunction) => {
 

@@ -17,6 +17,7 @@ export default (router: Express) => {
 
   router.get("/api/v1/template", templateController.get);
   router.post("/api/v1/template", claimController.validateClaim, templateController.add);
+  router.put("/api/v1/template/:id", claimController.validateClaim, templateController.update);
   router.delete("/api/v1/template/:id", claimController.validateClaim, templateController.delete);
 
   router.get("/api/v1/configuration", configurationController.get);

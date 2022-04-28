@@ -77,6 +77,24 @@ function useApi() {
 
   }, [postWithAuth]);
 
+  const updateTemplate = useCallback(async (id, { category_id, content, whatsapp_approved }) => {
+
+    const result = await putWithAuth(`/api/v1/template/${id}`, {
+      category_id: category_id,
+      content: content,
+      whatsapp_approved: whatsapp_approved
+    });
+
+    const data = await result.json();
+
+    if (result.ok) {
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+
+  }, [putWithAuth]);
+
 
 
   const deleteTemplate = useCallback(async (id) => {
@@ -85,12 +103,12 @@ function useApi() {
       method: "DELETE"
     });
 
-    const data = await result.json();
+    const data = await result.text();
 
     if (result.ok) {
       return null;
     } else {
-      throw new Error(data.message);
+      throw new Error("Error");
     }
 
   }, [fetchWithAuth]);
@@ -188,7 +206,8 @@ function useApi() {
     addConfiguration,
     getClaim,
     addClaim,
-    closeClaim
+    closeClaim,
+    updateTemplate
   };
 }
 
