@@ -7,6 +7,7 @@ import fs from "fs";
     var sql = fs.readFileSync('./scripts/reset_script.sql').toString();
     const result = await pgClient.query(sql);
 
-  } catch (e) {
+  } catch (e : any) {
+    console.log(e.message);
   }
 })();
