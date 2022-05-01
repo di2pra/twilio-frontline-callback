@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../../../helpers.js";
-import Category from "../models/category.js";
 import Configuration from "../models/configuration.js";
-import Template from "../models/template.js";
 
 export default class ConfigurationController {
 

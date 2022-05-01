@@ -1,6 +1,6 @@
 import { useOktaAuth } from '@okta/okta-react';
 import { useCallback } from 'react';
-import { IClaim, IConfiguration, IConfigurationInfo, ITemplateCategory } from '../Types';
+import { IClaim, IConfiguration, IConfigurationInfo, IConversation, ITemplateCategory } from '../Types';
 
 function useApi() {
 
@@ -103,7 +103,20 @@ function useApi() {
       method: "DELETE"
     });
 
-    const data = await result.text();
+    if (result.ok) {
+      return null;
+    } else {
+      throw new Error("Error");
+    }
+
+  }, [fetchWithAuth]);
+
+
+  const deleteAllConversation = useCallback(async () => {
+
+    const result = await fetchWithAuth(`/api/v1/conversation`, {
+      method: "DELETE"
+    });
 
     if (result.ok) {
       return null;
@@ -137,6 +150,19 @@ function useApi() {
 
     if (result.ok) {
       return data as IConfiguration;
+    } else {
+      throw new Error(data.message);
+    }
+
+  }, [fetchWithAuth]);
+
+  const getConversation : () => Promise<IConversation[]> = useCallback(async () => {
+
+    const result = await fetchWithAuth(`/api/v1/conversation`);
+    const data = await result.json();
+
+    if (result.ok) {
+      return data as IConversation[];
     } else {
       throw new Error(data.message);
     }
@@ -207,7 +233,9 @@ function useApi() {
     getClaim,
     addClaim,
     closeClaim,
-    updateTemplate
+    updateTemplate,
+    getConversation,
+    deleteAllConversation
   };
 }
 

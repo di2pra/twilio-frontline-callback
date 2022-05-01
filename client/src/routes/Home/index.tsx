@@ -1,6 +1,7 @@
 import { Col, Row } from "react-bootstrap";
 import ClaimSection from "./ClaimSection";
 import ConfigurationSection from "./ConfigurationSection";
+import ConversationSection from "./ConversationSection";
 import InstructionSection from "./InstructionSection";
 import TemplateSection from "./TemplateSection";
 
@@ -14,6 +15,7 @@ export default function Home() {
           <InstructionSection />
           <ConfigurationSection />
           <TemplateSection />
+          <ConversationSection />
         </Col>
       </Row>
     </>

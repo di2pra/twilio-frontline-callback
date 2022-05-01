@@ -31,3 +31,12 @@ export interface IClaim {
   started_at: Date;
   ended_at: Date;
 }
+
+export interface IConversation {
+  sid: string;
+  friendlyName: string;
+  chatServiceSid: string;
+  dateCreated: string;
+  dateUpdated: string;
+  state: string;
+}
