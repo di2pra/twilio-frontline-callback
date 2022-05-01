@@ -11,9 +11,7 @@ const Logout = () => {
 
   useEffect(() => {
     oktaAuth.revokeAccessToken().then(() => {
-
-      navigate('/');
-
+      oktaAuth.signOut();
     });
 
   });

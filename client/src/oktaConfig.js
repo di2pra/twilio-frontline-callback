@@ -34,6 +34,9 @@ const oktaConfig = {
   app: {
     basename: BASENAME
   },
+  tokenManager: {
+    autoRenew: true
+  }
 };
 
 export default oktaConfig;

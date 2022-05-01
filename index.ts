@@ -22,17 +22,6 @@ app.use(express.urlencoded({
   extended: false
 }));
 
-/*const requestFilter = (req: Request, res: Response, next: NextFunction) => {
-  res.locals.log = logWithRequestData(req.method, req.path, uuidv4());
-  next();
-};
-
-const logWithRequestData = (method: string, path: string, id: string) => (...message : any) => {
-  console.log(`[${method}][${path}][${id}]`, ...message);
-};
-
-app.use(requestFilter);*/
-
 routes(app);
 
 app.get('/index.html', (_, res) => {

@@ -1,8 +1,3 @@
-export interface IUser {
-  name: string;
-  email: string;
-}
-
 export interface ITemplate {
   id: number;
   category_id: number;

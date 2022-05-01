@@ -2,27 +2,23 @@ import { createContext, FC, useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import { useOktaAuth } from '@okta/okta-react';
 import { Container, Spinner } from "react-bootstrap";
-import { IUser } from "./Types";
 import Header from "./components/Header";
+import { IDToken } from "@okta/okta-auth-js";
 
 export const UserContext = createContext<{
-  loggedInUser?: IUser;
+  loggedInUser?: IDToken["claims"];
 }>({});
 
 const SecureLayout: FC = () => {
 
   const { oktaAuth, authState } = useOktaAuth();
 
-  const [loggedInUser, setLoggedInUser] = useState<IUser>();
+  const [loggedInUser, setLoggedInUser] = useState<IDToken["claims"]>();
 
   useEffect(() => {
 
     if (authState?.isAuthenticated) {
-      oktaAuth.getUser().then((data) => {
-        setLoggedInUser(data as IUser);
-      }).catch((error) => {
-        oktaAuth.signOut()
-      });
+      setLoggedInUser(authState.idToken?.claims);
     }
 
   }, [oktaAuth, authState?.isAuthenticated])
