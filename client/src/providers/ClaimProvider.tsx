@@ -41,6 +41,11 @@ const ClaimProvider: FC = ({ children }) => {
     addClaim().then((data) => {
       setClaim(data);
       setIsLoading(false);
+    }).catch((err) => {
+      getClaim().then((data) => {
+        setClaim(data);
+        setIsLoading(false);
+      });
     })
   }, [addClaim]);
 
@@ -49,6 +54,11 @@ const ClaimProvider: FC = ({ children }) => {
     closeClaim(id).then((data) => {
       setClaim(data);
       setIsLoading(false);
+    }).catch((err) => {
+      getClaim().then((data) => {
+        setClaim(data);
+        setIsLoading(false);
+      });
     });
   }, [addClaim]);
 
