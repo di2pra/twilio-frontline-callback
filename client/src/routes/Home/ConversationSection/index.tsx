@@ -19,7 +19,6 @@ const ConversationSection = () => {
     setIsLoading(true);
 
     getConversation().then((data) => {
-      console.log(data);
       setConversationList(data);
       setIsLoading(false);
     });
