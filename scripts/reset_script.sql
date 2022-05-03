@@ -1,4 +1,4 @@
-TRUNCATE public.configuration, public.template RESTART IDENTITY;
+TRUNCATE public.template RESTART IDENTITY;
 
 INSERT INTO public.configuration (info, updated_on, updated_by) VALUES ('{"companyNameShort":"Twilio","companyNameLong":"Twilio","welcomeKnownContact":"Bonjour, bienvenue chez {{companyNameLong}}, je vous mets en relation avec votre conseiller.","welcomeUnknownContact":"Bonjour, bienvenue chez {{companyNameLong}}. Je vous redirige vers le premier conseiller disponible de notre centre d''appel.","agentBusyAnswer":"Votre conseiller est occupé, je vous redirige vers le centre d''appel.","agentNotFoundAnswer":"Je vous redirige vers le premier conseiller disponible de notre centre d''appel."}', NOW(), 'prajendirane@twilio.com');
 
