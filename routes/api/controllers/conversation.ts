@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import { ErrorHandler } from "../../../helpers.js";
 import Conversation from "../models/conversation.js";
 
 export default class ConversationController {

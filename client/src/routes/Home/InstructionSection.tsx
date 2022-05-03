@@ -14,7 +14,7 @@ const InstructionSection = () => {
         </ul>
         <h6>Les liens :</h6>
         <ul>
-          <li><b>Frontline:</b> <a href="https://frontline.twilio.com" rel="noreferrer" target={"_blank"}>https://frontline.twilio.com</a> ; workspace : <code>frontline-se-france</code></li>
+          <li><b>Frontline:</b> <a href="https://frontline.twilio.com" rel="noreferrer" target={"_blank"}>https://frontline.twilio.com</a> ; workspace : <code>frontline-se-france</code> ; Compte Manager Frontline : Username <code>se-france@twilio.com</code> / Password : <code>FrontlineManager</code></li>
           <li><b>Hubspot:</b> <a href="https://app.hubspot.com/login/sso" rel="noreferrer" target={"_blank"}>https://app.hubspot.com/login/sso</a></li>
           <li><b>Flex:</b> <a href="https://flex.twilio.com/cadet-manatee-3328" rel="noreferrer" target={"_blank"}>https://flex.twilio.com/cadet-manatee-3328</a></li>
         </ul>

@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../../../helpers.js";
 import Claim from "../models/claim.js";
-
+import fs from "fs";
+import { pgClient } from "../../providers/postgres.js";
+import Conversation from "../models/conversation.js";
 export default class ClaimController {
 
   get = async (_: Request, res: Response, next: NextFunction) => {
@@ -44,6 +46,11 @@ export default class ClaimController {
       if (!req.params.id) {
         throw new ErrorHandler(400, 'Bad Request');
       }
+
+      const sql = fs.readFileSync('./scripts/reset_script.sql').toString();
+      const result = await pgClient.query(sql);
+
+      await Conversation.deleteAll();
 
       const claim = Claim.close(Number(req.params.id));
 
