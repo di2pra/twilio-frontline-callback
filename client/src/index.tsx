@@ -4,11 +4,14 @@ import App from './App';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.scss';
 import { BrowserRouter } from "react-router-dom";
+import { Theme } from '@twilio-paste/core/theme';
 
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <Theme.Provider theme="default">
+        <App />
+      </Theme.Provider>
     </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')

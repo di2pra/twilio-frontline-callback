@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Form, Modal, Row, Spinner } from "react-bootstrap";
+import { Col, Form, Row, Spinner } from "react-bootstrap";
 import useApi from "../../hooks/useApi";
 import useForm, { FormSchema } from "../../hooks/useForm";
 import { IConfiguration } from "../../Types";
@@ -7,6 +7,17 @@ import sanitizeHtml from 'sanitize-html';
 import { addCodeTag } from "../../Helper";
 import { ClaimContext } from "../../providers/ClaimProvider";
 import { UserContext } from "../../SecureLayout";
+import { Button } from '@twilio-paste/core/button';
+import { Card } from '@twilio-paste/core/card';
+import { Heading } from '@twilio-paste/core/heading';
+import { Input } from '@twilio-paste/core/input';
+import { HelpText } from '@twilio-paste/core/help-text';
+import { Label } from '@twilio-paste/core/label';
+import { Stack } from '@twilio-paste/core/stack';
+import { Box } from '@twilio-paste/core/box';
+import { Modal, ModalBody, ModalFooter, ModalFooterActions, ModalHeader, ModalHeading } from '@twilio-paste/core/modal';
+import { TextArea } from '@twilio-paste/core/textarea';
+import { Alert } from '@twilio-paste/core/alert';
 
 const stateSchema: FormSchema = {
   companyNameShort: { value: '', errorMessage: '', isInvalid: false },
@@ -108,14 +119,12 @@ const ConfigurationSection = () => {
 
   if (isLoading) {
     return (
-      <Card className="mb-3">
-        <Card.Header as="h3">Configuration</Card.Header>
-        <Card.Body>
-          <div className="d-flex flex-column justify-content-center align-items-center mt-3">
-            <Spinner className="mb-3" animation="border" variant="danger" />
-            <h3>Loading...</h3>
-          </div>
-        </Card.Body>
+      <Card>
+        <Heading as="h2" variant="heading20">Configuration</Heading>
+        <div className="d-flex flex-column justify-content-center align-items-center mt-3">
+          <Spinner className="mb-3" animation="border" variant="danger" />
+          <h3>Loading...</h3>
+        </div>
       </Card>
     )
   }
@@ -123,103 +132,105 @@ const ConfigurationSection = () => {
 
   return (
     <>
-      <Modal size="xl" centered backdrop="static" show={displayModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Modifier la configuration</Modal.Title>
-        </Modal.Header>
+      <Modal size="wide" ariaLabelledby="edit-config" isOpen={displayModal} onDismiss={handleClose}>
+        <ModalHeader>
+          <ModalHeading as="h3" id="edit-config">Modifier la configuration</ModalHeading>
+        </ModalHeader>
         <Form onSubmit={(e) => { handleOnSubmit(e, processAddTemplate) }}>
-          <Modal.Body>
-            <Row>
-              <Form.Group as={Col} className="mb-3" controlId="companyNameShort">
-                <Form.Label>Company Short Name</Form.Label>
-                <Form.Control type="text" value={String(state.companyNameShort.value)} name='companyNameShort' isInvalid={state.companyNameShort.isInvalid} onChange={handleOnChange} />
-                <div className="invalid-feedback">{state.companyNameShort.errorMessage}</div>
-              </Form.Group>
-              <Form.Group as={Col} className="mb-3" controlId="companyNameLong">
-                <Form.Label>Company Long Name</Form.Label>
-                <Form.Control type="text" value={String(state.companyNameLong.value)} name='companyNameLong' isInvalid={state.companyNameLong.isInvalid} onChange={handleOnChange} />
-                <div className="invalid-feedback">{state.companyNameLong.errorMessage}</div>
-              </Form.Group>
-            </Row>
-            <Form.Group as={Col} className="mb-3" controlId="welcomeKnownContact">
-              <Form.Label>Phrase de bienvenue si c'est un contact existant avec un conseillé identifié</Form.Label>
-              <Form.Control as="textarea" rows={3} value={String(state.welcomeKnownContact.value)} name='welcomeKnownContact' isInvalid={state.welcomeKnownContact.isInvalid} onChange={handleOnChange} />
-              <div className="invalid-feedback">{state.welcomeKnownContact.errorMessage}</div>
-            </Form.Group>
-            <Form.Group as={Col} className="mb-3" controlId="welcomeUnknownContact">
-              <Form.Label>Phrase de bienvenue si contact nouveau</Form.Label>
-              <Form.Control as="textarea" rows={3} value={String(state.welcomeUnknownContact.value)} name='welcomeUnknownContact' isInvalid={state.welcomeUnknownContact.isInvalid} onChange={handleOnChange} />
-              <div className="invalid-feedback">{state.welcomeUnknownContact.errorMessage}</div>
-            </Form.Group>
-            <Form.Group as={Col} className="mb-3" controlId="agentBusyAnswer">
-              <Form.Label>Réponse si le conseillé ne répond pas</Form.Label>
-              <Form.Control as="textarea" rows={3} value={String(state.agentBusyAnswer.value)} name='agentBusyAnswer' isInvalid={state.agentBusyAnswer.isInvalid} onChange={handleOnChange} />
-              <div className="invalid-feedback">{state.agentBusyAnswer.errorMessage}</div>
-            </Form.Group>
-            <Form.Group as={Col} className="mb-3" controlId="agentNotFoundAnswer">
-              <Form.Label>Réponse si le conseillé est introuvable</Form.Label>
-              <Form.Control as="textarea" rows={3} value={String(state.agentNotFoundAnswer.value)} name='agentNotFoundAnswer' isInvalid={state.agentNotFoundAnswer.isInvalid} onChange={handleOnChange} />
-              <div className="invalid-feedback">{state.agentNotFoundAnswer.errorMessage}</div>
-            </Form.Group>
-            <Alert className="mt-3" variant="success">
-              <Alert.Heading as="h6">Les paramètres disponibles :</Alert.Heading>
-              <hr />
-              <div className="ms-2 me-auto">
-                <p className="m-0" style={{ fontSize: '0.8rem' }}><code>{`{{companyNameShort}}`} :</code> Company Name Short</p>
-                <p className="m-0" style={{ fontSize: '0.8rem' }}><code>{`{{companyNameLong}}`} :</code> Company Name Long</p>
+          <ModalBody>
+            <Stack orientation="vertical" spacing="space40">
+              <Row>
+                <Col>
+                  <Label htmlFor="companyNameShort">Company Short Name</Label>
+                  <Input aria-describedby="companyNameShort_help_text" id="companyNameShort" name="companyNameShort" type="text" placeholder="Twilio" value={String(state.companyNameShort.value)} onChange={handleOnChange} hasError={state.companyNameShort.isInvalid} />
+                  {state.companyNameShort.isInvalid ? <HelpText id="companyNameShort_help_text" variant="error">{state.companyNameShort.errorMessage}</HelpText> : null}
+                </Col>
+                <Col>
+                  <Label htmlFor="companyNameLong">Company Long Name</Label>
+                  <Input aria-describedby="companyNameLong_help_text" id="companyNameLong" name="companyNameLong" type="text" placeholder="Twilio" value={String(state.companyNameLong.value)} onChange={handleOnChange} hasError={state.companyNameLong.isInvalid} />
+                  {state.companyNameLong.isInvalid ? <HelpText id="companyNameLong_help_text" variant="error">{state.companyNameLong.errorMessage}</HelpText> : null}
+                </Col>
+              </Row>
+              <div>
+                <Label htmlFor="welcomeKnownContact">Phrase de bienvenue si c'est un contact existant avec un conseillé identifié</Label>
+                <TextArea aria-describedby="welcomeKnownContact_help_text" id="welcomeKnownContact" name="welcomeKnownContact" value={String(state.welcomeKnownContact.value)} onChange={handleOnChange} hasError={state.welcomeKnownContact.isInvalid} />
+                {state.welcomeKnownContact.isInvalid ? <HelpText id="welcomeKnownContact_help_text" variant="error">{state.welcomeKnownContact.errorMessage}</HelpText> : null}
               </div>
-            </Alert>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="danger" onClick={handleClose}>
-              Annuler
-            </Button>
-            <Button variant="primary" type="submit">
-              Enregistrer
-            </Button>
-          </Modal.Footer>
+              <div>
+                <Label htmlFor="welcomeUnknownContact">Phrase de bienvenue si contact nouveau</Label>
+                <TextArea aria-describedby="welcomeUnknownContact_help_text" id="welcomeUnknownContact" name="welcomeUnknownContact" value={String(state.welcomeUnknownContact.value)} onChange={handleOnChange} hasError={state.welcomeUnknownContact.isInvalid} />
+                {state.welcomeUnknownContact.isInvalid ? <HelpText id="welcomeUnknownContact_help_text" variant="error">{state.welcomeUnknownContact.errorMessage}</HelpText> : null}
+              </div>
+              <div>
+                <Label htmlFor="agentBusyAnswer">Phrase de bienvenue si contact nouveau</Label>
+                <TextArea aria-describedby="agentBusyAnswer_help_text" id="agentBusyAnswer" name="agentBusyAnswer" value={String(state.agentBusyAnswer.value)} onChange={handleOnChange} hasError={state.agentBusyAnswer.isInvalid} />
+                {state.agentBusyAnswer.isInvalid ? <HelpText id="agentBusyAnswer_help_text" variant="error">{state.agentBusyAnswer.errorMessage}</HelpText> : null}
+              </div>
+              <div>
+                <Label htmlFor="agentNotFoundAnswer">Phrase de bienvenue si contact nouveau</Label>
+                <TextArea aria-describedby="agentNotFoundAnswer_help_text" id="agentNotFoundAnswer" name="agentNotFoundAnswer" value={String(state.agentNotFoundAnswer.value)} onChange={handleOnChange} hasError={state.agentNotFoundAnswer.isInvalid} />
+                {state.agentNotFoundAnswer.isInvalid ? <HelpText id="agentNotFoundAnswer_help_text" variant="error">{state.agentNotFoundAnswer.errorMessage}</HelpText> : null}
+              </div>
+              <Alert variant="neutral">
+                <Heading as="h2" variant="heading30">Les paramètres disponibles</Heading>
+                <div className="ms-2 me-auto">
+                  <p className="m-0" style={{ fontSize: '0.8rem' }}><code>{`{{companyNameShort}}`} :</code> Company Name Short</p>
+                  <p className="m-0" style={{ fontSize: '0.8rem' }}><code>{`{{companyNameLong}}`} :</code> Company Name Long</p>
+                </div>
+              </Alert>
+            </Stack>
+
+          </ModalBody>
+          <ModalFooter>
+            <ModalFooterActions>
+              <Button variant="secondary" onClick={handleClose}>
+                Annuler
+              </Button>
+              <Button variant="primary" type="submit">Enregistrer</Button>
+            </ModalFooterActions>
+          </ModalFooter>
         </Form>
       </Modal>
-      <Card className="mb-3">
-        <Card.Header as="h3">Configuration</Card.Header>
-        <Card.Body>
+      <Card>
+        <Heading as="h2" variant="heading20">Configuration</Heading>
+        <Stack orientation="vertical" spacing="space50">
           <Row>
             <Col>
-              <h6>Company Short Name</h6>
-              <Alert className="mb-4 p-2" variant='secondary'>
-                <p className="mb-0">{configuration?.info.companyNameShort}</p>
-              </Alert>
+              <ReadOnlyInput label="Company Short Name" value={configuration?.info.companyNameShort || ''} />
             </Col>
             <Col>
-              <h6>Company Long Name</h6>
-              <Alert className="mb-4 p-2" variant='secondary'>
-                <p className="mb-0">{configuration?.info.companyNameLong}</p>
-              </Alert>
+              <ReadOnlyInput label="Company Long Name" value={configuration?.info.companyNameLong || ''} />
             </Col>
           </Row>
-          <h6>Phrase de bienvenue si c'est un contact existant avec un conseillé identifié</h6>
-          <Alert className="mb-4 p-2" variant='secondary'>
-            <p className="mb-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(addCodeTag(String(configuration?.info.welcomeKnownContact))) }} />
-          </Alert>
-          <h6>Phrase de bienvenue si contact nouveau</h6>
-          <Alert className="mb-4 p-2" variant='secondary'>
-            <p className="mb-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(addCodeTag(String(configuration?.info.welcomeUnknownContact))) }} />
-          </Alert>
-          <h6>Réponse si le conseillé ne répond pas</h6>
-          <Alert className="mb-4 p-2" variant='secondary'>
-            <p className="mb-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(addCodeTag(String(configuration?.info.agentBusyAnswer))) }} />
-          </Alert>
-          <h6>Réponse si le conseillé est introuvable</h6>
-          <Alert className="mb-4 p-2" variant='secondary'>
-            <p className="mb-0" dangerouslySetInnerHTML={{ __html: sanitizeHtml(addCodeTag(String(configuration?.info.agentNotFoundAnswer))) }} />
-          </Alert>
+          <ReadOnlyInput label="Phrase de bienvenue si c'est un contact existant avec un conseillé identifié" value={configuration?.info.welcomeKnownContact || ''} />
+          <ReadOnlyInput label="Phrase de bienvenue si contact nouveau" value={configuration?.info.welcomeUnknownContact || ''} />
+          <ReadOnlyInput label="Réponse si le conseillé ne répond pas" value={configuration?.info.agentBusyAnswer || ''} />
+          <ReadOnlyInput label="Réponse si le conseillé est introuvable" value={configuration?.info.agentNotFoundAnswer || ''} />
           {
-            (claim != null && claim.ended_at === null && (claim.user === loggedInUser?.email)) ? <Button variant="warning" onClick={handleAddBtn} >Modifier</Button> : null
+            (claim != null && claim.ended_at === null && (claim.user === loggedInUser?.email)) ? <Button variant="primary" onClick={handleAddBtn} >Modifier</Button> : null
           }
-        </Card.Body>
+        </Stack>
       </Card>
     </>
 
+  )
+}
+
+function ReadOnlyInput({ label, value }: { label: string; value: string }) {
+  return (
+    <>
+      <Heading as="h5" variant="heading50">{label}</Heading>
+      <Box
+        as="p"
+        backgroundColor="colorBackgroundDecorative10Weakest"
+        borderWidth="borderWidth20"
+        borderColor="colorBorderDecorative10Weaker"
+        borderRadius="borderRadius20"
+        borderStyle="solid"
+        padding="space30"
+        margin="space0"
+      ><span dangerouslySetInnerHTML={{ __html: sanitizeHtml(addCodeTag(String(value))) }} /></Box>
+    </>
   )
 }
 

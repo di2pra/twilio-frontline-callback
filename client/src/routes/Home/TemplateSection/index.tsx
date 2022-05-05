@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Card, Spinner, Modal, Form, FormCheck, Alert, Button } from "react-bootstrap";
+import { Card, Spinner, Form, FormCheck, Alert } from "react-bootstrap";
 import useApi from "../../../hooks/useApi";
 import useForm, { FormSchema } from "../../../hooks/useForm";
 import { ITemplateCategory } from "../../../Types";
 import TemplateRow from "./TemplateRow";
+import { Button } from '@twilio-paste/core/button';
+import { Modal, ModalBody, ModalFooter, ModalFooterActions, ModalHeader, ModalHeading } from '@twilio-paste/core/modal';
 
 const stateSchema: FormSchema = {
   id: { value: null, errorMessage: '', isInvalid: false },
@@ -140,12 +142,12 @@ const TemplateSection = () => {
 
   return (
     <>
-      <Modal size="lg" centered backdrop="static" show={displayModal} onHide={handleClose}>
-        <Modal.Header closeButton>
-          <Modal.Title>Ajouter un nouveau template</Modal.Title>
-        </Modal.Header>
+      <Modal size="wide" ariaLabelledby="edit-template" isOpen={displayModal} onDismiss={handleClose}>
+        <ModalHeader>
+          <ModalHeading as="h3" id="edit-template">Ajouter un nouveau template</ModalHeading>
+        </ModalHeader>
         <Form onSubmit={(e) => { handleOnSubmit(e, processAddTemplate) }}>
-          <Modal.Body>
+          <ModalBody>
             <Form.Group className="mb-3" controlId="formTemplateBody">
               <Form.Label>Template</Form.Label>
               <Form.Control as="textarea" rows={3} value={String(state.content.value)} name='content' isInvalid={state.content.isInvalid} onChange={handleOnChange} placeholder="Bonjour {{customerFirstname}} nous avons traité vos documents, vous pouvez me contacter ici. {{agentFirstname}}." />
@@ -176,15 +178,15 @@ const TemplateSection = () => {
                 <p className="m-0" style={{ fontSize: '0.8rem' }}><code>{`{{companyNameLong}}`} :</code> Company Name Long</p>
               </div>
             </Alert>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="danger" onClick={handleClose}>
-              Annuler
-            </Button>
-            <Button variant="primary" type="submit">
-              Enregistrer
-            </Button>
-          </Modal.Footer>
+          </ModalBody>
+          <ModalFooter>
+            <ModalFooterActions>
+              <Button variant="secondary" onClick={handleClose}>
+                Annuler
+              </Button>
+              <Button variant="primary" type="submit">Enregistrer</Button>
+            </ModalFooterActions>
+          </ModalFooter>
         </Form>
       </Modal>
       <Card className="mb-3">
